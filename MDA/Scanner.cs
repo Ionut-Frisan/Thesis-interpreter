@@ -1,10 +1,5 @@
 namespace MDA;
 
-// TODO: add support for multi line comments /* ... */
-// TODO: add support for ternary operator ?:
-// TODO: add support for arrays
-// TODO: add support for import/packages
-
 public class Scanner
 {
     private string source;

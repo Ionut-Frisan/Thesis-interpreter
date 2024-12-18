@@ -1,8 +1,10 @@
 ﻿namespace MDA;
 
 class Mda
-{
-    static bool hadError = false;
+{   
+    private static Interpreter _interpreter = new Interpreter(); 
+    public static bool hadError = false;
+    public static bool hadRuntimeError = false;
     
     static void Main(string[] args)
     {
@@ -35,6 +37,7 @@ class Mda
         
         // Indicate an error in the exit code.
         if (hadError) System.Environment.Exit(65);
+        if (hadRuntimeError) System.Environment.Exit(70);
     }
 
     private static void RunPrompt()
@@ -62,9 +65,10 @@ class Mda
         Parser parser = new Parser(tokens);
         Expr expr = parser.Parse();
 
+        // Stop if there was a syntax error.
         if (hadError) return;
         
-        Console.WriteLine(new AstPrinter().Print(expr));
+        _interpreter.Interpret(expr);
     }
 
     public static void Error(int line, string message)
@@ -87,5 +91,11 @@ class Mda
     private static void Report(int line, string where, string message)
     {
         Console.WriteLine($"[line {line}] Error {where}: {message}");
+    }
+
+    public static void RuntimeError(RuntimeError error)
+    {
+        Console.Error.WriteLine($"{error.Message}\n[line {error.Token.Line}]");
+        hadRuntimeError = true;
     }
 }
