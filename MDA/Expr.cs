@@ -6,6 +6,7 @@ public abstract class Expr {
     T VisitGroupingExpr(Grouping expr);
     T VisitLiteralExpr(Literal expr);
     T VisitUnaryExpr(Unary expr);
+    T VisitVariableExpr(Variable expr);
   }
 
   public class Binary : Expr {
@@ -15,7 +16,7 @@ public abstract class Expr {
       this.Right = right;
     }
 
-     public override T accept<T>(IVisitor<T> visitor) {
+     public override T Accept<T>(IVisitor<T> visitor) {
       return visitor.VisitBinaryExpr(this);
     }
 
@@ -25,15 +26,15 @@ public abstract class Expr {
   }
 
   public class Grouping : Expr {
-    public Grouping(Expr expression) {
-      this.Expression = expression;
+    public Grouping(Expr expr) {
+      this.Expr = expr;
     }
 
-     public override T accept<T>(IVisitor<T> visitor) {
+     public override T Accept<T>(IVisitor<T> visitor) {
       return visitor.VisitGroupingExpr(this);
     }
 
-    public Expr Expression { get; set; }
+    public Expr Expr { get; set; }
   }
 
   public class Literal : Expr {
@@ -41,7 +42,7 @@ public abstract class Expr {
       this.Value = value;
     }
 
-     public override T accept<T>(IVisitor<T> visitor) {
+     public override T Accept<T>(IVisitor<T> visitor) {
       return visitor.VisitLiteralExpr(this);
     }
 
@@ -54,7 +55,7 @@ public abstract class Expr {
       this.Right = right;
     }
 
-     public override T accept<T>(IVisitor<T> visitor) {
+     public override T Accept<T>(IVisitor<T> visitor) {
       return visitor.VisitUnaryExpr(this);
     }
 
@@ -62,6 +63,18 @@ public abstract class Expr {
     public Expr Right { get; set; }
   }
 
+  public class Variable : Expr {
+    public Variable(Token name) {
+      this.Name = name;
+    }
 
-  public abstract T accept<T>(IVisitor<T> visitor);
+     public override T Accept<T>(IVisitor<T> visitor) {
+      return visitor.VisitVariableExpr(this);
+    }
+
+    public Token Name { get; set; }
+  }
+
+
+  public abstract T Accept<T>(IVisitor<T> visitor);
 }

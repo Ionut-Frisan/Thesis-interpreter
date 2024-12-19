@@ -42,6 +42,20 @@ operator       → "==" | "!=" | "<" | "<=" | ">" | ">="
 ## TODO: Not sure what this is https://craftinginterpreters.com/parsing-expressions.html
 
 ```
+program        → declaration* EOF ;
+
+declaration    → varDecl
+               | statement ;
+
+varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
+
+statement      → exprStmt
+               | printStmt ;
+
+exprStmt       → expression ";" ;
+
+printStmt      → "print" expression ";" ;
+
 expression     → equality ;
 
 equality       → comparison ( ( "!=" | "==" ) comparison )* ;
@@ -55,6 +69,8 @@ factor         → unary ( ( "/" | "*" ) unary )* ;
 unary          → ( "!" | "-" ) unary
                | primary ;
                
-primary        → NUMBER | STRING | "true" | "false" | "null"
-               | "(" expression ")" ;
+primary        → "true" | "false" | "nil"
+               | NUMBER | STRING
+               | "(" expression ")"
+               | IDENTIFIER ;
 ```

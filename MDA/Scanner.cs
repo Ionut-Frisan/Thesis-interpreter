@@ -145,7 +145,7 @@ public class Scanner
     private void ProcessNumber()
     {
         while (IsDigit(Peek())) Advance();
-        
+
         // Look for a fractional part.
         if (Peek() == '.' && IsDigit(PeekNext()))
         {
@@ -154,7 +154,7 @@ public class Scanner
 
             while (IsDigit(Peek())) Advance();
         }
-        
+
         AddToken(TokenType.NUMBER, Double.Parse(source.Substring(start, current - start)));
     }
 

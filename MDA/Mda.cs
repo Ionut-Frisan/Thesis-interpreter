@@ -1,18 +1,19 @@
 ﻿namespace MDA;
 
 class Mda
-{   
-    private static Interpreter _interpreter = new Interpreter(); 
+{
+    private static Interpreter _interpreter = new Interpreter();
     public static bool hadError = false;
     public static bool hadRuntimeError = false;
-    
+
     static void Main(string[] args)
     {
         if (args.Length > 1)
         {
             Console.WriteLine("Usage: mda [script]");
             System.Environment.Exit(1);
-        } else if (args.Length == 1)
+        }
+        else if (args.Length == 1)
         {
             RunFile(args[0]);
         }
@@ -26,7 +27,7 @@ class Mda
     {
         var source = File.ReadAllBytes(path);
         var data = source.ToString();
-        
+
         if (String.IsNullOrWhiteSpace(data))
         {
             hadError = true;
@@ -34,7 +35,7 @@ class Mda
         }
 
         Run(data);
-        
+
         // Indicate an error in the exit code.
         if (hadError) System.Environment.Exit(65);
         if (hadRuntimeError) System.Environment.Exit(70);
@@ -43,7 +44,7 @@ class Mda
     private static void RunPrompt()
     {
         var reader = new StreamReader(Console.OpenStandardInput());
-        
+
         while (true)
         {
             Console.Write("> ");
@@ -52,6 +53,7 @@ class Mda
             {
                 System.Environment.Exit(1);
             }
+
             Run(line);
             hadError = false;
         }
@@ -61,14 +63,14 @@ class Mda
     {
         var scanner = new Scanner(source);
         var tokens = scanner.ScanTokens();
-        
+
         Parser parser = new Parser(tokens);
-        Expr expr = parser.Parse();
+        List<Stmt> statements = parser.Parse();
 
         // Stop if there was a syntax error.
         if (hadError) return;
-        
-        _interpreter.Interpret(expr);
+
+        _interpreter.Interpret(statements);
     }
 
     public static void Error(int line, string message)

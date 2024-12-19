@@ -11,11 +11,19 @@ public class GenerateAst
             System.Environment.Exit(64);
         }
         String outputDir = args[0];
+        
         DefineAst(outputDir, "Expr", new List<string>{
             "Binary   : Expr left, Token op, Expr right",
-            "Grouping : Expr expression",
+            "Grouping : Expr expr",
             "Literal  : object value",
-            "Unary    : Token op, Expr right"
+            "Unary    : Token op, Expr right",
+            "Variable : Token name"
+        });
+
+        DefineAst(outputDir, "Stmt", new List<string>{
+            "Expression  : Expr expr",
+            "Print       : Expr expr",
+            "Var         : Token name, Expr? initializer"
         });
     }
 
@@ -45,7 +53,7 @@ public class GenerateAst
             
             // The base accept() method
             writer.WriteLine();
-            writer.WriteLine("  public abstract T accept<T>(IVisitor<T> visitor);");
+            writer.WriteLine("  public abstract T Accept<T>(IVisitor<T> visitor);");
 
             writer.WriteLine("}");
         }
@@ -72,7 +80,7 @@ public class GenerateAst
         // Visitor pattern.
         writer.WriteLine();
         // writer.WriteLine("  @oOverride");
-        writer.WriteLine("     public override T accept<T>(IVisitor<T> visitor) {");
+        writer.WriteLine("     public override T Accept<T>(IVisitor<T> visitor) {");
         writer.WriteLine("      return visitor.Visit" + className + baseName + "(this);");
         writer.WriteLine("    }");
         

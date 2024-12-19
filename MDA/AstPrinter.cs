@@ -4,11 +4,13 @@ namespace MDA;
 
 public class AstPrinter : Expr.IVisitor<string>
 {
-    public AstPrinter() { }
+    public AstPrinter()
+    {
+    }
 
     public string Print(Expr expr)
     {
-        return expr.accept(this);
+        return expr.Accept(this);
     }
 
     public string VisitBinaryExpr(Expr.Binary expr)
@@ -18,7 +20,7 @@ public class AstPrinter : Expr.IVisitor<string>
 
     public string VisitGroupingExpr(Expr.Grouping expr)
     {
-        return Parenthesize("group", expr.Expression);
+        return Parenthesize("group", expr.Expr);
     }
 
     public string VisitLiteralExpr(Expr.Literal expr)
@@ -31,7 +33,7 @@ public class AstPrinter : Expr.IVisitor<string>
     {
         return Parenthesize(expr.Op.Lexeme, expr.Right);
     }
-    
+
     // params is similar to Expr... exprs
     private string Parenthesize(string name, params Expr[] exprs)
     {
@@ -40,10 +42,11 @@ public class AstPrinter : Expr.IVisitor<string>
         foreach (var expr in exprs)
         {
             builder.Append(" ");
-            builder.Append(expr.accept(this));
+            builder.Append(expr.Accept(this));
         }
+
         builder.Append(")");
-        
+
         return builder.ToString();
     }
 }

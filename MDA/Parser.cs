@@ -5,8 +5,10 @@ namespace MDA;
 
 public class Parser
 {
-    private class ParseError: Exception {}
-    
+    private class ParseError : Exception
+    {
+    }
+
     private List<Token> _tokens;
     private int _current = 0;
 
@@ -15,24 +17,72 @@ public class Parser
         this._tokens = tokens;
     }
 
-    public Expr Parse()
+    public List<Stmt> Parse()
+    {
+        List<Stmt> statements = new List<Stmt>();
+        while (!IsAtEnd())
+        {
+            statements.Add(Declaration());
+        }
+
+        return statements;
+    }
+
+    private Stmt Declaration()
     {
         try
         {
-            return Expression();
+            if (Match(TokenType.VAR)) return VarDeclaration();
+
+            return Statement();
         }
-        // Syntax error recovery is the parser’s job, so we don’t want the ParseError exception to escape into the rest of the interpreter.
-        catch (ParseError e)
+        catch (ParseError error)
         {
+            Syncronize();
             return null;
         }
+    }
+
+    private Stmt Statement()
+    {
+        if (Match(TokenType.PRINT)) return PrintStatement();
+
+        return ExpressionStatement();
+    }
+
+    private Stmt VarDeclaration()
+    {
+        Token name = Consume(TokenType.IDENTIFIER, "Expected variable name.");
+
+        Expr initilizer = null;
+        if (Match(TokenType.EQUAL))
+        {
+            initilizer = Expression();
+        }
+
+        Consume(TokenType.SEMICOLON, "Expected ';' after variable declaration.");
+        return new Stmt.Var(name, initilizer);
+    }
+
+    private Stmt PrintStatement()
+    {
+        Expr value = Expression();
+        Consume(TokenType.SEMICOLON, "Expect ';' after value.");
+        return new Stmt.Print(value);
+    }
+
+    private Stmt ExpressionStatement()
+    {
+        Expr expression = Expression();
+        Consume(TokenType.SEMICOLON, "Expect ';' after expression.");
+        return new Stmt.Expression(expression);
     }
 
     private Expr Expression()
     {
         return Equality();
     }
-    
+
     /*
      * equality       → comparison ( ( "!=" | "==" ) comparison )* ;
      */
@@ -46,12 +96,11 @@ public class Parser
             Expr right = Comparison();
             expr = new Expr.Binary(expr, op, right);
         }
-        
+
         return expr;
     }
-    
+
     /*
-     
      * comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
      */
     private Expr Comparison()
@@ -64,10 +113,10 @@ public class Parser
             Expr right = Term();
             expr = new Expr.Binary(expr, op, right);
         }
-        
+
         return expr;
     }
-    
+
     /*
      * term           → factor ( ( "-" | "+" ) factor )* ;
      */
@@ -84,7 +133,7 @@ public class Parser
 
         return expr;
     }
-    
+
     /*
      * factor         → unary ( ( "/" | "*" ) unary )* ;
      */
@@ -98,10 +147,10 @@ public class Parser
             Expr right = Unary();
             expr = new Expr.Binary(expr, op, right);
         }
-        
+
         return expr;
     }
-    
+
     /*
      * unary          → ( "!" | "-" ) unary
      *                  | primary ;
@@ -114,10 +163,10 @@ public class Parser
             Expr right = Unary();
             return new Expr.Unary(op, right);
         }
-        
+
         return Primary();
     }
-    
+
     /*
      * primary        → NUMBER | STRING | "true" | "false" | "null"
      *                  | "(" expression ")" ;
@@ -133,23 +182,28 @@ public class Parser
             return new Expr.Literal(Previous().Literal);
         }
 
+        if (Match(TokenType.IDENTIFIER))
+        {
+            return new Expr.Variable(Previous());
+        }
+
         if (Match(TokenType.LEFT_PAREN))
         {
             Expr expr = Expression();
             Consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
             return new Expr.Literal(expr);
         }
-        
+
         throw Error(Peek(), "Expect expression.");
     }
 
     private Token Consume(TokenType tokenType, string message)
     {
         if (Check(tokenType)) return Advance();
-        
+
         throw Error(Peek(), message);
     }
-    
+
     /*
      * Report a ParseError.
      */
@@ -158,7 +212,7 @@ public class Parser
         Mda.Error(token, message);
         return new ParseError();
     }
-    
+
     /*
      * Discard tokens until a statement boundary is found.
      * Used to recover from panic mode.
@@ -187,8 +241,8 @@ public class Parser
             Advance();
         }
     }
-    
-    
+
+
     /*
      * Checks if current token has any of the given types
      */
@@ -202,9 +256,10 @@ public class Parser
                 return true;
             }
         }
+
         return false;
     }
-    
+
     /*
      * Returns true if the current token is of the given type.
      * Unlike Match() it doesn't consume the token, it only looks at it.
@@ -214,7 +269,7 @@ public class Parser
         if (IsAtEnd()) return false;
         return Peek().Type == type;
     }
-    
+
     /*
      * Consume the current token and returns it.
      */
@@ -223,7 +278,7 @@ public class Parser
         if (!IsAtEnd()) _current++;
         return Previous();
     }
-    
+
     /*
      * Returns true if the current token is the last one.
      */
@@ -231,7 +286,7 @@ public class Parser
     {
         return Peek().Type == TokenType.EOF;
     }
-    
+
     /*
      * Returns the current token that is not yet consumed.
      */
@@ -239,7 +294,7 @@ public class Parser
     {
         return _tokens[_current];
     }
-    
+
     /*
      * Returns the most recent consumed token.
      */
