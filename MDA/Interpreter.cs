@@ -22,6 +22,24 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
         }
     }
 
+    public object VisitLogicalExpr(Expr.Logical expr)
+    {
+        object left = Evaluate(expr.Left);
+
+        if (expr.Op.Type == TokenType.OR)
+        {
+            // true || x -> dont evaluate x as expression is truthy anyway
+            if (IsTruthy(left)) return left;
+        }
+        else
+        {   
+            // false && x -> dont evaluate x as expression is falsy anyway
+            if (IsTruthy(left)) return left;
+        }
+        
+        return Evaluate(expr.Right);
+    }
+
     public object VisitLiteralExpr(Expr.Literal expr)
     {
         return expr.Value;
@@ -101,6 +119,20 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
         }
 
         // Unreachable.
+        return null;
+    }
+
+    public object VisitIfStmt(Stmt.If stmt)
+    {
+        if (IsTruthy(Evaluate(stmt.Condition)))
+        {
+            Execute(stmt.ThenBranch);
+        }
+        else if (stmt.ElseBranch != null)
+        {
+            Execute(stmt.ElseBranch);
+        }
+
         return null;
     }
 
