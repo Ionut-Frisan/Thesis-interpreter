@@ -58,7 +58,7 @@ public class Parser
     {
         Consume(TokenType.LEFT_PAREN, "Expected '(' after 'for'.");
         
-        Stmt initializer = Declaration();
+        Stmt initializer;
         if (Match(TokenType.SEMICOLON))
         {   
             // Initializer can be omitted.

@@ -26,7 +26,7 @@ class Mda
     private static void RunFile(string path)
     {
         var source = File.ReadAllBytes(path);
-        var data = source.ToString();
+        var data = System.Text.Encoding.UTF8.GetString(source);
 
         if (String.IsNullOrWhiteSpace(data))
         {
