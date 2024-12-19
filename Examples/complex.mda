@@ -1,0 +1,15 @@
+var int = 0;
+var float = 0.25;
+var str = "string";
+var bool = true;
+
+var i = 0;
+
+while (i < 5) {
+    print i;
+    i = i + 1;
+}
+
+for (; i > 0; i = i - 1) {
+    print i;
+}

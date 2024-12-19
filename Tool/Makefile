@@ -1,5 +1,4 @@
 run:
-	pwd
 	dotnet build -c Release
 	bin/Release/net9.0/Tool ../MDA/
 
