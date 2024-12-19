@@ -11,6 +11,7 @@ public abstract class Stmt {
     T VisitIfStmt(If stmt);
     T VisitPrintStmt(Print stmt);
     T VisitVarStmt(Var stmt);
+    T VisitWhileStmt(While stmt);
   }
 
   public class Block : Stmt {
@@ -77,6 +78,20 @@ public abstract class Stmt {
 
     public Token Name { get; set; }
     public Expr? Initializer { get; set; }
+  }
+
+  public class While : Stmt {
+    public While(Expr condition, Stmt body) {
+      this.Condition = condition;
+      this.Body = body;
+    }
+
+     public override T Accept<T>(IVisitor<T> visitor) {
+      return visitor.VisitWhileStmt(this);
+    }
+
+    public Expr Condition { get; set; }
+    public Stmt Body { get; set; }
   }
 
 
