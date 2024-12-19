@@ -4,7 +4,18 @@ namespace MDA;
 
 public class Environment
 {
+    public Environment enclosing { get; set; }
     private Hashtable values = new Hashtable();
+
+    public Environment()
+    {
+        enclosing = null;
+    }
+    
+    public Environment(Environment enclosing)
+    {
+        this.enclosing = enclosing;
+    }
 
     public void Define(string name, object? value)
     {
@@ -19,6 +30,8 @@ public class Environment
             return values[name.Lexeme];
         }
         
+        if (enclosing != null) return enclosing.Get(name);
+        
         throw new RuntimeError(name, $"Undefined variable '{name.Lexeme}'.");
     }
 
@@ -29,6 +42,13 @@ public class Environment
             values[name.Lexeme] = value;
             return;
         }
+
+        if (enclosing != null)
+        {
+            enclosing.Assign(name, value);
+            return;
+        }
+        
         throw new RuntimeError(name, $"Undefined variable '{name.Lexeme}'.");
     }
 }

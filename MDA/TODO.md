@@ -16,6 +16,18 @@ Rest of division
 
 ### Import/packages
 
+### Throw runtime error when trying to access uninitialized variables
+```mda
+// No initializers.
+var a;
+var b;
+
+a = "assigned";
+print a; // OK, was assigned first.
+
+print b; // Error!
+```
+
 ### More syntactic sugar
 Examples:
 ```plaintext

@@ -129,6 +129,12 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
         return null;
     }
 
+    public object VisitBlockStmt(Stmt.Block stmt)
+    {
+        ExecuteBlock(stmt.Statements, new Environment(environment));
+        return null;
+    }
+
     public object VisitAssignExpr(Expr.Assign stmt)
     {
         object value = Evaluate(stmt.Value);
@@ -178,6 +184,23 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
     private void Execute(Stmt stmt)
     {
         stmt.Accept(this);
+    }
+
+    private void ExecuteBlock(List<Stmt> statements, Environment environment)
+    {
+        Environment previous = this.environment;
+        try
+        {
+            this.environment = environment;
+            foreach (var statement in statements)
+            {
+                Execute(statement);
+            }
+        }
+        finally
+        {
+            this.environment = previous;
+        }
     }
 
     private string Stringify(object value)
