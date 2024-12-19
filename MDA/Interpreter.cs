@@ -5,6 +5,8 @@ namespace MDA;
 
 public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
 {
+    private Environment environment = new Environment();
+    
     public void Interpret(List<Stmt> statements)
     {
         try
@@ -113,6 +115,23 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
         object value = Evaluate(stmt.Expr);
         Console.WriteLine(Stringify(value));
         return null;
+    }
+
+    public object VisitVarStmt(Stmt.Var stmt)
+    {
+        object value = null;
+        if (stmt.Initializer != null)
+        {
+            value = Evaluate(stmt.Initializer);
+        }
+        
+        environment.Define(stmt.Name.Lexeme, value);
+        return null;
+    }
+
+    public object VisitVariableExpr(Expr.Variable expr)
+    {
+        return environment.Get(expr.Name);
     }
 
     private void CheckNumberOperand(Token op, object operand)
