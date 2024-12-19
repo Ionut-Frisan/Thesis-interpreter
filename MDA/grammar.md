@@ -56,7 +56,10 @@ exprStmt       → expression ";" ;
 
 printStmt      → "print" expression ";" ;
 
-expression     → equality ;
+expression     → assignment ;
+
+assignment     → IDENTIFIER "=" assignment
+               | equality ;
 
 equality       → comparison ( ( "!=" | "==" ) comparison )* ;
 

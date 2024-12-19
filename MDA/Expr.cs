@@ -2,11 +2,26 @@ namespace MDA;
 
 public abstract class Expr {
   public interface IVisitor <T> {
+    T VisitAssignExpr(Assign expr);
     T VisitBinaryExpr(Binary expr);
     T VisitGroupingExpr(Grouping expr);
     T VisitLiteralExpr(Literal expr);
     T VisitUnaryExpr(Unary expr);
     T VisitVariableExpr(Variable expr);
+  }
+
+  public class Assign : Expr {
+    public Assign(Token name, Expr value) {
+      this.Name = name;
+      this.Value = value;
+    }
+
+     public override T Accept<T>(IVisitor<T> visitor) {
+      return visitor.VisitAssignExpr(this);
+    }
+
+    public Token Name { get; set; }
+    public Expr Value { get; set; }
   }
 
   public class Binary : Expr {

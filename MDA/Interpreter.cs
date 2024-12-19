@@ -129,6 +129,13 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
         return null;
     }
 
+    public object VisitAssignExpr(Expr.Assign stmt)
+    {
+        object value = Evaluate(stmt.Value);
+        environment.Assign(stmt.Name, value);
+        return value;
+    }
+
     public object VisitVariableExpr(Expr.Variable expr)
     {
         return environment.Get(expr.Name);
