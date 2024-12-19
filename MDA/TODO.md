@@ -28,6 +28,20 @@ print a; // OK, was assigned first.
 print b; // Error!
 ```
 
+### Foreach
+```mda
+foreach (var number in numbers) {}
+```
+Above code could be desugarized in something like
+```mda
+for (var i = 0; i < numbers.length; i++) {
+    var number = numbers[i]; // or for performance, declare number before for and just reassign
+    ...body
+}
+```
+
+### Break / continue in loops
+
 ### More syntactic sugar
 Examples:
 ```plaintext

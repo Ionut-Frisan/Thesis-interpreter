@@ -45,6 +45,7 @@ public class Parser
 
     private Stmt Statement()
     {
+        if (Match((TokenType.FOR))) return ForStatement();
         if (Match(TokenType.IF)) return IfStatement();
         if (Match(TokenType.PRINT)) return PrintStatement();
         if (Match(TokenType.WHILE)) return WhileStatement();
@@ -53,6 +54,64 @@ public class Parser
         return ExpressionStatement();
     }
 
+    private Stmt ForStatement()
+    {
+        Consume(TokenType.LEFT_PAREN, "Expected '(' after 'for'.");
+        
+        Stmt initializer = Declaration();
+        if (Match(TokenType.SEMICOLON))
+        {   
+            // Initializer can be omitted.
+            // for( ; <condition> ; <increment>)
+            initializer = null;
+        } else if (Match(TokenType.VAR))
+        {
+            initializer = VarDeclaration();
+        }
+        else
+        {
+            initializer = ExpressionStatement();
+        }
+
+        Expr condition = null;
+        if (!Check(TokenType.SEMICOLON))
+        {
+            condition = Expression();
+        }
+        Consume(TokenType.SEMICOLON, "Expected ';' after 'for' condition.");
+        
+        Expr increment = null;
+        if (!Check(TokenType.RIGHT_PAREN))
+        {
+            increment = Expression();
+        }
+        Consume(TokenType.RIGHT_PAREN, "Expected ')' after 'for' clauses.");
+        
+        Stmt body = Statement();
+        
+        // Since for is just syntactic sugar over a while, we desugarize the for statement into a while statement
+        // for (<initializer>; <condition>; <increment> becomes
+        // <initializer>; while (<condiiton>) { ...bodu, <increment> };
+        if (increment != null)
+        {
+            body = new Stmt.Block(new List<Stmt>
+            {
+                body,
+                new Stmt.Expression(increment)
+            });
+        }
+        
+        if (condition == null) condition = new Expr.Literal(true);
+        body = new Stmt.While(condition, body);
+
+        if (initializer != null)
+        {
+            body = new Stmt.Block(new List<Stmt> { initializer, body });
+        }
+        
+        return body;
+    }
+    
     private Stmt VarDeclaration()
     {
         Token name = Consume(TokenType.IDENTIFIER, "Expected variable name.");
