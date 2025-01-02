@@ -434,7 +434,7 @@ public class Parser
         {
             Expr expr = Expression();
             Consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
-            return new Expr.Literal(expr);
+            return new Expr.Grouping(expr);
         }
 
         throw Error(Peek(), "Expect expression.");

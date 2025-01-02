@@ -111,6 +111,12 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
                     return (string)left + (string)right;
                 }
 
+                // Support concacatenation of strings and numbers
+                if (left is string && right is double || left is double && right is string)
+                {
+                    return Stringify(left) + Stringify(right);
+                }
+
                 throw new RuntimeError(expr.Op, "Operands must be two strings or two numbers.");
             case TokenType.SLASH:
                 CheckNumberOperands(expr.Op, left, right);
