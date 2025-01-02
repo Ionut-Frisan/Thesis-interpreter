@@ -440,7 +440,7 @@ public class Parser
             return new Expr.Literal(expr);
         }
 
-        throw Error(Peek(), " Expect expression.");
+        throw Error(Peek(), "Expect expression.");
     }
 
     private Token Consume(TokenType tokenType, string message)

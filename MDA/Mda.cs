@@ -86,7 +86,7 @@ class Mda
         }
         else
         {
-            Report(token.Line, " at ", token.Lexeme + "'" + message);
+            Report(token.Line, " at ", "'" + token.Lexeme + "' " + message);
         }
     }
 
