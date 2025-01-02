@@ -4,3 +4,5 @@ run:
 
 clean:
 	rm ../MDA/Expr.cs
+	rm ../MDA/Stmt.cs
+	

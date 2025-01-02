@@ -15,6 +15,7 @@ public class GenerateAst
         DefineAst(outputDir, "Expr", new List<string>{
             "Assign   : Token name, Expr value",
             "Binary   : Expr left, Token op, Expr right",
+            "Call     : Expr callee, Token paren, List<Expr> arguments",
             "Grouping : Expr expr",
             "Literal  : object value",
             "Logical  : Expr left, Token op, Expr right",
@@ -25,8 +26,10 @@ public class GenerateAst
         DefineAst(outputDir, "Stmt", new List<string>{
             "Block       : List<Stmt> statements",
             "Expression  : Expr expr",
+            "Function    : Token name, List<Token> parameters, List<Stmt> body",
             "If          : Expr condition, Stmt thenBranch, Stmt? elseBranch",
             "Print       : Expr expr",
+            "Return      : Token keyword, Expr? value",
             "Var         : Token name, Expr? initializer",
             "While       : Expr condition, Stmt body"
         });
