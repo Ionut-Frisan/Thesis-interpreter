@@ -2,9 +2,9 @@
 
 class Mda
 {
-    private static Interpreter _interpreter = new Interpreter();
-    public static bool hadError = false;
-    public static bool hadRuntimeError = false;
+    private static readonly Interpreter Interpreter = new Interpreter();
+    private static bool _hadError;
+    private static bool _hadRuntimeError;
 
     static void Main(string[] args)
     {
@@ -30,15 +30,15 @@ class Mda
 
         if (String.IsNullOrWhiteSpace(data))
         {
-            hadError = true;
+            _hadError = true;
             System.Environment.Exit(1);
         }
 
         Run(data);
 
         // Indicate an error in the exit code.
-        if (hadError) System.Environment.Exit(65);
-        if (hadRuntimeError) System.Environment.Exit(70);
+        if (_hadError) System.Environment.Exit(65);
+        if (_hadRuntimeError) System.Environment.Exit(70);
     }
 
     private static void RunPrompt()
@@ -55,7 +55,7 @@ class Mda
             }
 
             Run(line);
-            hadError = false;
+            _hadError = false;
         }
     }
 
@@ -68,9 +68,9 @@ class Mda
         List<Stmt> statements = parser.Parse();
 
         // Stop if there was a syntax error.
-        if (hadError) return;
+        if (_hadError) return;
 
-        _interpreter.Interpret(statements);
+        Interpreter.Interpret(statements);
     }
 
     public static void Error(int line, string message)
@@ -98,6 +98,6 @@ class Mda
     public static void RuntimeError(RuntimeError error)
     {
         Console.Error.WriteLine($"{error.Message}\n[line {error.Token.Line}]");
-        hadRuntimeError = true;
+        _hadRuntimeError = true;
     }
 }

@@ -4,48 +4,48 @@ namespace MDA;
 
 public class Environment
 {
-    public Environment enclosing { get; set; }
-    private Hashtable values = new Hashtable();
+    private Environment? Enclosing { get; set; }
+    private readonly Hashtable _values = new Hashtable();
 
     public Environment()
     {
-        enclosing = null;
+        Enclosing = null;
     }
     
     public Environment(Environment enclosing)
     {
-        this.enclosing = enclosing;
+        Enclosing = enclosing;
     }
 
     public void Define(string name, object? value)
     {
         // TODO: might want to check if the name already is in the map so that redefining of variables is not allowed
-        values.Add(name, value);
+        _values.Add(name, value);
     }
 
     public object Get(Token name)
     {
-        if (values.ContainsKey(name.Lexeme))
+        if (_values.ContainsKey(name.Lexeme))
         {
-            return values[name.Lexeme];
+            return _values[name.Lexeme];
         }
         
-        if (enclosing != null) return enclosing.Get(name);
+        if (Enclosing != null) return Enclosing.Get(name);
         
         throw new RuntimeError(name, $"Undefined variable '{name.Lexeme}'.");
     }
 
     public void Assign(Token name, object? value)
     {
-        if (values.ContainsKey(name.Lexeme))
+        if (_values.ContainsKey(name.Lexeme))
         {
-            values[name.Lexeme] = value;
+            _values[name.Lexeme] = value;
             return;
         }
 
-        if (enclosing != null)
+        if (Enclosing != null)
         {
-            enclosing.Assign(name, value);
+            Enclosing.Assign(name, value);
             return;
         }
         

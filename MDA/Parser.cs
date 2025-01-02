@@ -1,6 +1,3 @@
-using System.ComponentModel.Design;
-using System.Text.RegularExpressions;
-
 namespace MDA;
 
 public class Parser
@@ -10,11 +7,11 @@ public class Parser
     }
 
     private List<Token> _tokens;
-    private int _current = 0;
+    private int _current;
 
     public Parser(List<Token> tokens)
     {
-        this._tokens = tokens;
+        _tokens = tokens;
     }
 
     public List<Stmt> Parse()
@@ -28,7 +25,7 @@ public class Parser
         return statements;
     }
 
-    private Stmt Declaration()
+    private Stmt? Declaration()
     {
         try
         {
@@ -37,7 +34,7 @@ public class Parser
 
             return Statement();
         }
-        catch (ParseError error)
+        catch (ParseError)
         {
             Syncronize();
             return null;
@@ -60,7 +57,7 @@ public class Parser
     {
         Consume(TokenType.LEFT_PAREN, "Expected '(' after 'for'.");
         
-        Stmt initializer;
+        Stmt? initializer;
         if (Match(TokenType.SEMICOLON))
         {   
             // Initializer can be omitted.
@@ -75,14 +72,14 @@ public class Parser
             initializer = ExpressionStatement();
         }
 
-        Expr condition = null;
+        Expr? condition = null;
         if (!Check(TokenType.SEMICOLON))
         {
             condition = Expression();
         }
         Consume(TokenType.SEMICOLON, "Expected ';' after 'for' condition.");
         
-        Expr increment = null;
+        Expr? increment = null;
         if (!Check(TokenType.RIGHT_PAREN))
         {
             increment = Expression();
@@ -118,7 +115,7 @@ public class Parser
     {
         Token name = Consume(TokenType.IDENTIFIER, "Expected variable name.");
 
-        Expr initilizer = null;
+        Expr? initilizer = null;
         if (Match(TokenType.EQUAL))
         {
             initilizer = Expression();
@@ -145,7 +142,7 @@ public class Parser
         Consume(TokenType.RIGHT_PAREN, "Expected ')' after if condition.");
         
         Stmt thenBranch = Statement();
-        Stmt elseBranch = null;
+        Stmt? elseBranch = null;
         if (Match(TokenType.ELSE))
         {
             elseBranch = Statement();
@@ -164,7 +161,7 @@ public class Parser
     private Stmt ReturnStatement()
     {
         Token keyword = Previous();
-        Expr value = null;
+        Expr? value = null;
         if (!Check(TokenType.SEMICOLON))
         {
             value = Expression();

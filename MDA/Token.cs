@@ -2,10 +2,10 @@ namespace MDA;
 
 public class Token
 {
-    public TokenType Type;
-    public String Lexeme;
-    public Object Literal;
-    public int Line;
+    public readonly TokenType Type;
+    public readonly string Lexeme;
+    public readonly object Literal;
+    public readonly int Line;
 
     public Token(TokenType type, string lexeme, object literal, int line)
     {

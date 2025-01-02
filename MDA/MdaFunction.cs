@@ -11,7 +11,7 @@ public class MdaFunction : IMdaCallable
         _closure = closure;
     }
 
-    public object Call(Interpreter interpreter, ICollection<object> arguments)
+    public object? Call(Interpreter interpreter, ICollection<object> arguments)
     {
         Environment environment = new Environment(_closure);
         for (int i = 0; i < _declaration.Parameters.Count; i++)

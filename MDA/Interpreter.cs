@@ -1,19 +1,17 @@
-using System.Data;
 using MDA.Builtins;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace MDA;
 
-public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
+public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
 {
-    public Environment Globals = new Environment();
-    private Environment environment;
+    private readonly Environment _globals = new Environment();
+    private Environment _environment;
 
     public Interpreter()
     {
-        environment = Globals;
+        _environment = _globals;
 
-        Globals.Define("clock", new ClockFunction());
+        _globals.Define("clock", new ClockFunction());
     }
     
     public void Interpret(List<Stmt> statements)
@@ -37,12 +35,12 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
 
         if (expr.Op.Type == TokenType.OR)
         {
-            // true || x -> dont evaluate x as expression is truthy anyway
+            // true || x -> don't evaluate x as expression is truthy anyway
             if (IsTruthy(left)) return left;
         }
         else
         {   
-            // false && x -> dont evaluate x as expression is falsy anyway
+            // false && x -> don't evaluate x as expression is falsy anyway
             if (IsTruthy(left)) return left;
         }
         
@@ -59,7 +57,7 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
         return Evaluate(expr.Expr);
     }
 
-    public object VisitUnaryExpr(Expr.Unary expr)
+    public object? VisitUnaryExpr(Expr.Unary expr)
     {
         object right = Evaluate(expr.Right);
 
@@ -76,7 +74,7 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
         return null;
     }
 
-    public object VisitBinaryExpr(Expr.Binary expr)
+    public object? VisitBinaryExpr(Expr.Binary expr)
     {
         object left = Evaluate(expr.Left);
         object right = Evaluate(expr.Right);
@@ -131,7 +129,7 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
         return null;
     }
 
-    public object VisitCallExpr(Expr.Call expr)
+    public object? VisitCallExpr(Expr.Call expr)
     {
         // We evaluate the expression for the callee.
         // Typically, this expression is just an identifier that looks up the function by its name, but it could be anything
@@ -159,7 +157,7 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
         return function.Call(this, arguments);
     }
 
-    public object VisitIfStmt(Stmt.If stmt)
+    public object? VisitIfStmt(Stmt.If stmt)
     {
         if (IsTruthy(Evaluate(stmt.Condition)))
         {
@@ -173,39 +171,39 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
         return null;
     }
 
-    public object VisitExpressionStmt(Stmt.Expression stmt)
+    public object? VisitExpressionStmt(Stmt.Expression stmt)
     {
         Evaluate(stmt.Expr);
         return null;
     }
 
-    public object VisitFunctionStmt(Stmt.Function stmt)
+    public object? VisitFunctionStmt(Stmt.Function stmt)
     {
-        MdaFunction function = new MdaFunction(stmt, environment);
-        environment.Define(stmt.Name.Lexeme, function);
+        MdaFunction function = new MdaFunction(stmt, _environment);
+        _environment.Define(stmt.Name.Lexeme, function);
         return null;
     }
 
-    public object VisitPrintStmt(Stmt.Print stmt)
+    public object? VisitPrintStmt(Stmt.Print stmt)
     {
         object value = Evaluate(stmt.Expr);
         Console.WriteLine(Stringify(value));
         return null;
     }
 
-    public object VisitVarStmt(Stmt.Var stmt)
+    public object? VisitVarStmt(Stmt.Var stmt)
     {
-        object value = null;
+        object? value = null;
         if (stmt.Initializer != null)
         {
             value = Evaluate(stmt.Initializer);
         }
         
-        environment.Define(stmt.Name.Lexeme, value);
+        _environment.Define(stmt.Name.Lexeme, value);
         return null;
     }
 
-    public object VisitWhileStmt(Stmt.While stmt)
+    public object? VisitWhileStmt(Stmt.While stmt)
     {
         while (IsTruthy(Evaluate(stmt.Condition)))
         {
@@ -217,28 +215,28 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
 
     public object VisitReturnStmt(Stmt.Return stmt)
     {
-        object value = null;
+        object? value = null;
         if (stmt.Value != null) value = Evaluate(stmt.Value);
 
         throw new Return(value);
     }
 
-    public object VisitBlockStmt(Stmt.Block stmt)
+    public object? VisitBlockStmt(Stmt.Block stmt)
     {
-        ExecuteBlock(stmt.Statements, new Environment(environment));
+        ExecuteBlock(stmt.Statements, new Environment(_environment));
         return null;
     }
 
     public object VisitAssignExpr(Expr.Assign stmt)
     {
         object value = Evaluate(stmt.Value);
-        environment.Assign(stmt.Name, value);
+        _environment.Assign(stmt.Name, value);
         return value;
     }
 
     public object VisitVariableExpr(Expr.Variable expr)
     {
-        return environment.Get(expr.Name);
+        return _environment.Get(expr.Name);
     }
 
     private void CheckNumberOperand(Token op, object operand)
@@ -253,7 +251,7 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
         throw new RuntimeError(op, "Operands must be numbers");
     }
 
-    private bool IsTruthy(object value)
+    private bool IsTruthy(object? value)
     {
         if (value == null) return false;
         if (value is bool) return (bool)value;
@@ -262,7 +260,7 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
         return true;
     }
 
-    private bool IsEqual(object left, object right)
+    private bool IsEqual(object? left, object? right)
     {
         if (left == null && right == null) return true;
         if (left == null || right == null) return false;
@@ -282,10 +280,10 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
 
     public void ExecuteBlock(List<Stmt> statements, Environment environment)
     {
-        Environment previous = this.environment;
+        Environment previous = _environment;
         try
         {
-            this.environment = environment;
+            _environment = environment;
             foreach (var statement in statements)
             {
                 Execute(statement);
@@ -293,11 +291,11 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
         }
         finally
         {
-            this.environment = previous;
+            _environment = previous;
         }
     }
 
-    private string Stringify(object value)
+    private string Stringify(object? value)
     {
         if (value == null) return "null";
         if (value is double)

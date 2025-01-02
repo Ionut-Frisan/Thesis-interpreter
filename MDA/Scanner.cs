@@ -2,51 +2,53 @@ namespace MDA;
 
 public class Scanner
 {
-    private string source;
-    private List<Token> tokens = [];
-    private int start = 0;
-    private int current = 0;
-    private int line = 1;
-    private static Dictionary<string, TokenType> keywords;
+    private readonly string _source;
+    private readonly List<Token> _tokens = [];
+    private int _start;
+    private int _current;
+    private int _line = 1;
+    private static Dictionary<string, TokenType> _keywords;
 
     public Scanner(string source)
     {
-        this.source = source;
+        _source = source;
 
-        keywords = new Dictionary<string, TokenType>();
-        keywords.Add("and", TokenType.AND);
-        keywords.Add("class", TokenType.CLASS);
-        keywords.Add("else", TokenType.ELSE);
-        keywords.Add("false", TokenType.FALSE);
-        keywords.Add("for", TokenType.FOR);
-        keywords.Add("fun", TokenType.FUN);
-        keywords.Add("if", TokenType.IF);
-        keywords.Add("null", TokenType.NULL);
-        keywords.Add("or", TokenType.OR);
-        keywords.Add("print", TokenType.PRINT);
-        keywords.Add("return", TokenType.RETURN);
-        keywords.Add("super", TokenType.SUPER);
-        keywords.Add("this", TokenType.THIS);
-        keywords.Add("true", TokenType.TRUE);
-        keywords.Add("var", TokenType.VAR);
-        keywords.Add("while", TokenType.WHILE);
+        _keywords = new Dictionary<string, TokenType>
+        {
+            { "and", TokenType.AND },
+            { "class", TokenType.CLASS },
+            { "else", TokenType.ELSE },
+            { "false", TokenType.FALSE },
+            { "for", TokenType.FOR },
+            { "fun", TokenType.FUN },
+            { "if", TokenType.IF },
+            { "null", TokenType.NULL },
+            { "or", TokenType.OR },
+            { "print", TokenType.PRINT },
+            { "return", TokenType.RETURN },
+            { "super", TokenType.SUPER },
+            { "this", TokenType.THIS },
+            { "true", TokenType.TRUE },
+            { "var", TokenType.VAR },
+            { "while", TokenType.WHILE }
+        };
     }
 
     public List<Token> ScanTokens()
     {
         while (!IsAtEnd())
         {
-            start = current;
+            _start = _current;
             ScanToken();
         }
 
-        tokens.Add(new Token(TokenType.EOF, "", null, line));
-        return tokens;
+        _tokens.Add(new Token(TokenType.EOF, "", null, _line));
+        return _tokens;
     }
 
     private bool IsAtEnd()
     {
-        return current >= source.Length;
+        return _current >= _source.Length;
     }
 
     private void ScanToken()
@@ -95,7 +97,7 @@ public class Scanner
                 break;
 
             case '\n':
-                line++;
+                _line++;
                 break;
             case '"': ProcessString(); break;
 
@@ -110,7 +112,7 @@ public class Scanner
                 }
                 else
                 {
-                    Mda.Error(line, $"Unrecognized character '{c}'");
+                    Mda.Error(_line, $"Unrecognized character '{c}'");
                 }
 
                 break;
@@ -136,8 +138,8 @@ public class Scanner
     {
         while (IsAlphaNumeric(Peek())) Advance();
 
-        string text = source.Substring(start, current - start);
-        TokenType type = keywords.ContainsKey(text) ? keywords[text] : TokenType.IDENTIFIER;
+        string text = _source.Substring(_start, _current - _start);
+        TokenType type = _keywords.ContainsKey(text) ? _keywords[text] : TokenType.IDENTIFIER;
 
         AddToken(type);
     }
@@ -155,20 +157,20 @@ public class Scanner
             while (IsDigit(Peek())) Advance();
         }
 
-        AddToken(TokenType.NUMBER, Double.Parse(source.Substring(start, current - start)));
+        AddToken(TokenType.NUMBER, Double.Parse(_source.Substring(_start, _current - _start)));
     }
 
     private void ProcessString()
     {
         while (Peek() != '"' && !IsAtEnd())
         {
-            if (Peek() == '\n') line++;
+            if (Peek() == '\n') _line++;
             Advance();
         }
 
         if (IsAtEnd())
         {
-            Mda.Error(line, "Unterminated string.");
+            Mda.Error(_line, "Unterminated string.");
             return;
         }
 
@@ -176,7 +178,7 @@ public class Scanner
         Advance();
 
         // Trim the surrounding quotes.
-        string value = source.Substring(start + 1, current - start - 2);
+        string value = _source.Substring(_start + 1, _current - _start - 2);
 
         AddToken(TokenType.STRING, value);
     }
@@ -184,27 +186,27 @@ public class Scanner
     private char Peek()
     {
         if (IsAtEnd()) return '\0';
-        return source[current];
+        return _source[_current];
     }
 
     private char PeekNext()
     {
-        if (current + 1 >= source.Length) return '\0';
-        return source[current + 1];
+        if (_current + 1 >= _source.Length) return '\0';
+        return _source[_current + 1];
     }
 
     private bool Match(char expected)
     {
         if (IsAtEnd()) return false;
-        if (source[current] != expected) return false;
+        if (_source[_current] != expected) return false;
 
-        current++;
+        _current++;
         return true;
     }
 
     private char Advance()
     {
-        return source[current++];
+        return _source[_current++];
     }
 
     private void AddToken(TokenType token)
@@ -214,7 +216,7 @@ public class Scanner
 
     private void AddToken(TokenType type, object literal)
     {
-        String text = source.Substring(start, current - start);
-        tokens.Add(new Token(type, text, literal, line));
+        String text = _source.Substring(_start, _current - _start);
+        _tokens.Add(new Token(type, text, literal, _line));
     }
 }
