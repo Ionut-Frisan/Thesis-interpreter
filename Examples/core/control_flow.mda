@@ -1,0 +1,33 @@
+
+// If-else statement
+var number = 10;
+if (number > 5) {
+    print "Greater than 5";
+} else {
+    print "Less than or equal to 5";
+}
+// Output: Greater than 5
+
+// If-else-if ladder
+if (number > 20) {
+    print "Greater than 20";
+} else if (number > 5) {
+    print "Greater than 5 but less than or equal to 20";
+} else {
+    print "Less than or equal to 5";
+}
+// Output: Greater than 5 but less than or equal to 20
+
+// While loop
+var count = 0;
+while (count < 3) {
+    print count;
+    count = count + 1;
+}
+// Output: 0, 1, 2
+
+// For loop
+for (var i = 0; i < 3; i = i + 1) {
+    print i;
+}
+// Output: 0, 1, 2

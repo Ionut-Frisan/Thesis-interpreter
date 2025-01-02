@@ -1,0 +1,27 @@
+
+// Function declaration and call
+fun add(a, b) {
+    return a + b;
+}
+print add(3, 4);        // 7
+
+fun subtract(a, b) {
+    return a - b;
+}
+print subtract(10, 5);  // 5
+
+// Function with return early
+fun greet(name) {
+    return "Hello, " + name;
+}
+print greet("Alice");   // Hello, Alice
+
+// Functions can return other functions
+fun multiplier(factor) {
+    return fun (num) {
+        return num * factor;
+    };
+}
+
+var double = multiplier(2);
+print double(5);        // 10

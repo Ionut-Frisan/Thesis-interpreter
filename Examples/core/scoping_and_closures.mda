@@ -1,0 +1,11 @@
+
+// Variable scoping and closure
+fun outer() {
+    var outerVar = "I'm from the outer function";
+    fun inner() {
+        print outerVar;
+    }
+    inner();  // I'm from the outer function
+}
+
+outer();

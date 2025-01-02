@@ -1,0 +1,19 @@
+
+class Animal {
+    init(name) {
+        this.name = name;
+    }
+
+    speak() {
+        print this.name + " makes a sound.";
+    }
+}
+
+class Dog < Animal {
+    speak() {
+        print this.name + " barks!";
+    }
+}
+
+var dog = Dog("Rex");
+dog.speak(); // Rex barks!

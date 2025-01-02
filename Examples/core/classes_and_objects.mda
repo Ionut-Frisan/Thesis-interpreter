@@ -1,0 +1,18 @@
+
+// Class definition
+class Person {
+    init(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    greet() {
+        print "Hello, my name is " + this.name + " and I am " + this.age + " years old.";
+    }
+}
+
+var alice = Person("Alice", 30);
+alice.greet();  // Hello, my name is Alice and I am 30 years old.
+
+var bob = Person("Bob", 25);
+bob.greet();    // Hello, my name is Bob and I am 25 years old.

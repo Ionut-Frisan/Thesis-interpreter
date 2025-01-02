@@ -1,0 +1,195 @@
+// Benchmark code for measuring execution time
+
+fun benchmark(label, code) {
+    var startTime = clock();
+    code();
+    var endTime = clock();
+    print label + " took " + (endTime - startTime) + "ms";
+}
+
+// Benchmark arithmetic operations
+fun benchmarkArithmetic() {
+    var result = 0;
+    for (var i = 0; i < 1000000; i = i + 1) {
+        result = 3 + 4 * 2 - 1 / 2;
+    }
+}
+benchmark("Arithmetic Operations", benchmarkArithmetic);
+
+// Benchmark function calls
+fun benchmarkFunctionCalls() {
+    fun fib(n) {
+        if (n <= 1) return n;
+        return fib(n - 1) + fib(n - 2);
+    }
+    var result = fib(20);  // A computation-heavy recursive call
+}
+benchmark("Function Calls", benchmarkFunctionCalls);
+
+// Benchmark loop performance
+fun benchmarkLoopPerformance() {
+    var sum = 0;
+    for (var i = 0; i < 1000000; i = i + 1) {
+        sum = sum + i;
+    }
+}
+benchmark("Loop Performance", benchmarkLoopPerformance);
+
+// Benchmark string concatenation
+fun benchmarkStringConcatenation() {
+    var str = "";
+    for (var i = 0; i < 100000; i = i + 1) {
+        str = str + "a";
+    }
+}
+benchmark("String Concatenation", benchmarkStringConcatenation);
+
+
+
+// Benchmark logical operations
+fun benchmarkLogicalOperations() {
+    var result = true;
+    for (var i = 0; i < 1000000; i = i + 1) {
+        result = (i < 500000 and true) or (i >= 500000 and false);
+    }
+}
+benchmark("Logical Operations", benchmarkLogicalOperations);
+
+// Benchmark nested function calls
+fun benchmarkNestedFunctionCalls() {
+    fun a(x) { return x + 1; }
+    fun b(x) { return a(x) * 2; }
+    fun c(x) { return b(x) - 3; }
+    
+    var result = 0;
+    for (var i = 0; i < 100000; i = i + 1) {
+        result = c(b(a(i)));
+    }
+}
+benchmark("Nested Function Calls", benchmarkNestedFunctionCalls);
+
+// Benchmark variable scoping
+fun benchmarkVariableScoping() {
+    var x = 0;
+    for (var i = 0; i < 100000; i = i + 1) {
+        var y = i;
+        {
+            var z = y + 1;
+            x = x + z;
+        }
+    }
+}
+benchmark("Variable Scoping", benchmarkVariableScoping);
+
+// Benchmark array-like operations using closures
+fun benchmarkArrayLikeOperations() {
+    fun makeCounter() {
+        var count = 0;
+        fun increment() {
+            count = count + 1;
+            return count;
+        }
+        return increment;
+    }
+
+    var counter = makeCounter();
+    for (var i = 0; i < 1000000; i = i + 1) {
+        counter();
+    }
+}
+benchmark("Array-like Operations", benchmarkArrayLikeOperations);
+
+// Benchmark conditional branching
+fun benchmarkConditionalBranching() {
+    var sum = 0;
+    for (var i = 0; i < 1000000; i = i + 1) {
+        if (i / 2 == 0) {
+            sum = sum + i;
+        } else if (i / 3 == 0) {
+            sum = sum - i;
+        } else {
+            sum = sum * 2;
+        }
+    }
+}
+benchmark("Conditional Branching", benchmarkConditionalBranching);
+
+// Benchmark recursive factorial calculation
+fun benchmarkRecursiveFactorial() {
+    fun factorial(n) {
+        if (n <= 1) return 1;
+        return n * factorial(n - 1);
+    }
+    var result = factorial(10000);
+}
+benchmark("Recursive Factorial", benchmarkRecursiveFactorial);
+
+// Benchmark iterative factorial calculation
+fun benchmarkIterativeFactorial() {
+    fun factorial(n) {
+        var result = 1;
+        for (var i = 2; i <= n; i = i + 1) {
+            result = result * i;
+        }
+        return result;
+    }
+    var result = factorial(10000);
+}
+benchmark("Iterative Factorial", benchmarkIterativeFactorial);
+
+
+// Benchmark closure creation and execution
+fun benchmarkClosures() {
+    fun makeAdder(x) {
+        fun adder(y) { return x + y; }
+        return adder;
+    }
+    var adder = makeAdder(5);
+    var sum = 0;
+    for (var i = 0; i < 1000000; i = i + 1) {
+        sum = adder(i);
+    }
+}
+benchmark("Closures", benchmarkClosures);
+
+// Benchmark complex arithmetic expressions
+fun benchmarkComplexArithmetic() {
+    var result = 0;
+    for (var i = 0; i < 1000000; i = i + 1) {
+        result = ((i * 2 + 3) / 4 - 5) * ((i / 3 + 2) * 4 - 1);
+    }
+}
+benchmark("Complex Arithmetic", benchmarkComplexArithmetic);
+
+// Benchmark nested loops
+fun benchmarkNestedLoops() {
+    var sum = 0;
+    for (var i = 0; i < 1000; i = i + 1) {
+        for (var j = 0; j < 1000; j = j + 1) {
+            sum = sum + i * j;
+        }
+    }
+}
+benchmark("Nested Loops", benchmarkNestedLoops);
+
+// Benchmark function with many parameters
+fun benchmarkManyParameters() {
+    fun manyParams(a, b, c, d, e, f, g, h) {
+        return a + b + c + d + e + f + g + h;
+    }
+    var sum = 0;
+    for (var i = 0; i < 1000000; i = i + 1) {
+        sum = manyParams(1, 2, 3, 4, 5, 6, 7, 8);
+    }
+}
+benchmark("Many Parameters", benchmarkManyParameters);
+
+// Benchmark deep recursion
+fun benchmarkDeepRecursion() {
+    fun recurse(n) {
+        if (n == 0) return 0;
+        return 1 + recurse(n - 1);
+    }
+    var result = recurse(10000);
+}
+benchmark("Deep Recursion", benchmarkDeepRecursion);

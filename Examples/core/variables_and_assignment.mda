@@ -1,0 +1,18 @@
+
+// Variable assignment and updates
+var x = 5;
+print x;               // 5
+x = 10;
+print x;               // 10
+
+var y = 7;
+var z = x + y;
+print z;               // 17
+
+var a;
+a = 10;
+a = a + 2;
+print a;               // 12
+
+var b = "Hello, " + "World!";
+print b;               // Hello, World!

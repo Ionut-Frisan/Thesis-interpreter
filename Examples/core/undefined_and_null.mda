@@ -1,0 +1,6 @@
+
+var a = null;
+print a;               // null
+
+var b;
+print b;               // Error: Undefined variable 'b'

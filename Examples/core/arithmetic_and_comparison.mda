@@ -1,0 +1,19 @@
+
+// Simple arithmetic expressions
+print 1 + 2;           // 3
+print 3 * 4;           // 12
+print 10 - 3;          // 7
+print 20 / 5;          // 4
+print 5 * (3 + 2);     // 25
+
+// Order of operations
+print (1 + 2) * 3;     // 9
+print 10 / (2 + 3);     // 2
+
+// Equality and comparison
+print 3 == 3;          // true
+print 3 != 4;          // true
+print 5 > 3;           // true
+print 3 < 3;           // false
+print 5 >= 5;          // true
+print 3 <= 4;          // true

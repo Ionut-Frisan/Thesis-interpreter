@@ -1,0 +1,8 @@
+
+// Logical operators
+print true and false;   // false
+print true or false;    // true
+print not true;         // false
+
+var flag = true;
+print not flag;         // false
