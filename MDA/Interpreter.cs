@@ -1,11 +1,20 @@
 using System.Data;
+using MDA.Builtins;
 using Microsoft.VisualBasic.CompilerServices;
 
 namespace MDA;
 
 public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
 {
-    private Environment environment = new Environment();
+    public Environment Globals = new Environment();
+    private Environment environment;
+
+    public Interpreter()
+    {
+        environment = Globals;
+
+        Globals.Define("clock", new ClockFunction());
+    }
     
     public void Interpret(List<Stmt> statements)
     {
@@ -122,6 +131,34 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
         return null;
     }
 
+    public object VisitCallExpr(Expr.Call expr)
+    {
+        // We evaluate the expression for the callee.
+        // Typically, this expression is just an identifier that looks up the function by its name, but it could be anything
+        object callee = Evaluate(expr.Callee);
+        
+        // We evaluate each of the argument expressions in order and store the resulting values in a list
+        List<object> arguments = new List<object>();
+        foreach (var argument in expr.Arguments)
+        {
+            arguments.Add(Evaluate(argument));
+        }
+
+        if (!(callee is IMdaCallable))
+        {
+            throw new RuntimeError(expr.Paren, "Can only call functions and classes.");
+        }
+        
+        IMdaCallable function = (IMdaCallable)callee;
+
+        if (arguments.Count != function.Arity())
+        {
+            throw new RuntimeError(expr.Paren, $"Expected {function.Arity()} arguments, but got {arguments.Count}.");
+        }
+        
+        return function.Call(this, arguments);
+    }
+
     public object VisitIfStmt(Stmt.If stmt)
     {
         if (IsTruthy(Evaluate(stmt.Condition)))
@@ -139,6 +176,13 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
     public object VisitExpressionStmt(Stmt.Expression stmt)
     {
         Evaluate(stmt.Expr);
+        return null;
+    }
+
+    public object VisitFunctionStmt(Stmt.Function stmt)
+    {
+        MdaFunction function = new MdaFunction(stmt, environment);
+        environment.Define(stmt.Name.Lexeme, function);
         return null;
     }
 
@@ -169,6 +213,14 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
         }
 
         return null;
+    }
+
+    public object VisitReturnStmt(Stmt.Return stmt)
+    {
+        object value = null;
+        if (stmt.Value != null) value = Evaluate(stmt.Value);
+
+        throw new Return(value);
     }
 
     public object VisitBlockStmt(Stmt.Block stmt)
@@ -228,7 +280,7 @@ public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
         stmt.Accept(this);
     }
 
-    private void ExecuteBlock(List<Stmt> statements, Environment environment)
+    public void ExecuteBlock(List<Stmt> statements, Environment environment)
     {
         Environment previous = this.environment;
         try

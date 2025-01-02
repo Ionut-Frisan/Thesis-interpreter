@@ -8,6 +8,7 @@ public abstract class Expr {
   public interface IVisitor <T> {
     T VisitAssignExpr(Assign expr);
     T VisitBinaryExpr(Binary expr);
+    T VisitCallExpr(Call expr);
     T VisitGroupingExpr(Grouping expr);
     T VisitLiteralExpr(Literal expr);
     T VisitLogicalExpr(Logical expr);
@@ -43,6 +44,22 @@ public abstract class Expr {
     public Expr Left { get; set; }
     public Token Op { get; set; }
     public Expr Right { get; set; }
+  }
+
+  public class Call : Expr {
+    public Call(Expr callee, Token paren, List<Expr> arguments) {
+      this.Callee = callee;
+      this.Paren = paren;
+      this.Arguments = arguments;
+    }
+
+     public override T Accept<T>(IVisitor<T> visitor) {
+      return visitor.VisitCallExpr(this);
+    }
+
+    public Expr Callee { get; set; }
+    public Token Paren { get; set; }
+    public List<Expr> Arguments { get; set; }
   }
 
   public class Grouping : Expr {

@@ -32,6 +32,7 @@ public class Parser
     {
         try
         {
+            if (Match(TokenType.FUN)) return Function("function");
             if (Match(TokenType.VAR)) return VarDeclaration();
 
             return Statement();
@@ -48,6 +49,7 @@ public class Parser
         if (Match((TokenType.FOR))) return ForStatement();
         if (Match(TokenType.IF)) return IfStatement();
         if (Match(TokenType.PRINT)) return PrintStatement();
+        if (Match(TokenType.RETURN)) return ReturnStatement();
         if (Match(TokenType.WHILE)) return WhileStatement();
         if (Match(TokenType.LEFT_BRACE)) return new Stmt.Block(Block());
 
@@ -159,11 +161,61 @@ public class Parser
         return new Stmt.Print(value);
     }
 
+    private Stmt ReturnStatement()
+    {
+        Token keyword = Previous();
+        Expr value = null;
+        if (!Check(TokenType.SEMICOLON))
+        {
+            value = Expression();
+        }
+        
+        Consume(TokenType.SEMICOLON, "Expected ';' after return value.");
+        return new Stmt.Return(keyword, value);
+    }
+
     private Stmt ExpressionStatement()
     {
         Expr expression = Expression();
         Consume(TokenType.SEMICOLON, "Expect ';' after expression.");
         return new Stmt.Expression(expression);
+    }
+
+    // Same function will be used for classes and functions
+    private Stmt.Function Function(string kind)
+    {
+        // Get function name
+        Token name = Consume(TokenType.IDENTIFIER, $"Expected {kind} name.");
+        
+        // Check for opening parenthesis for parameters
+        Consume(TokenType.LEFT_PAREN, $"Expected '(' after {kind} name.");
+        
+        // Initialize parameters list
+        List<Token> parameters = new List<Token>();
+        
+        // If we have (), we skip parsing the parameters as there will be none
+        if (!Check(TokenType.RIGHT_PAREN))
+        {
+            do
+            {
+                // Check maximum parameters count
+                if (parameters.Count >= 255)
+                {
+                    Error(Peek(), "Can't have more than 255 parameters.");
+                }
+                    
+                // Add parameter to list
+                parameters.Add(Consume(TokenType.IDENTIFIER, "Expected parameter name."));
+            } while (Match(TokenType.COMMA));
+        }
+        // Check for closing parenthesis
+        Consume(TokenType.RIGHT_PAREN, "Expected ')' after parameters.");
+        
+        // Check for left brace
+        Consume(TokenType.LEFT_BRACE, "Expected '{' before" + kind + " body");
+        
+        List<Stmt> body = Block();
+        return new Stmt.Function(name, parameters, body);
     }
 
     private List<Stmt> Block()
@@ -314,7 +366,51 @@ public class Parser
             return new Expr.Unary(op, right);
         }
 
-        return Primary();
+        return Call();
+    }
+
+    private Expr Call()
+    {
+        Expr expr = Primary();
+
+        while (true)
+        {
+            if (Match(TokenType.LEFT_PAREN))
+            {
+                expr = FinishCall(expr);
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return expr;
+    }
+
+    private Expr FinishCall(Expr callee)
+    {
+        List<Expr> arguments = new List<Expr>();
+        // If we match (), don't try to parse arguments as there aren't any
+        if (!Check(TokenType.RIGHT_PAREN))
+        {
+            // parse arguments until no new ',' is found
+            do
+            {
+                // Limit the number of arguments that can be passed to functions
+                // No real reason to do this except for convention
+                if (arguments.Count >= 255)
+                {
+                    Error(Peek(), "Can't have more than 255 arguments.");
+                }
+                arguments.Add(Expression());
+            } while (Match(TokenType.COMMA));
+        }
+        
+        // check for closing parenthesis after arguments list
+        Token paren = Consume(TokenType.RIGHT_PAREN, "Expected ')' after arguments.");
+        
+        return new Expr.Call(callee, paren, arguments);
     }
 
     /*
@@ -344,7 +440,7 @@ public class Parser
             return new Expr.Literal(expr);
         }
 
-        throw Error(Peek(), "Expect expression.");
+        throw Error(Peek(), " Expect expression.");
     }
 
     private Token Consume(TokenType tokenType, string message)
