@@ -6,6 +6,7 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
 {
     private readonly Environment _globals = new Environment();
     private Environment _environment;
+    private readonly IDictionary<Expr, int> _locals = new Dictionary<Expr, int>();
 
     public Interpreter()
     {
@@ -117,7 +118,7 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
                     return Stringify(left) + Stringify(right);
                 }
 
-                throw new RuntimeError(expr.Op, "Operands must be two strings or two numbers.");
+                throw new RuntimeError(expr.Op, "Operands must be two strings or two numbers or a combination of strings and numbers.");
             case TokenType.SLASH:
                 CheckNumberOperands(expr.Op, left, right);
                 if ((double)right == 0)
@@ -233,16 +234,34 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         return null;
     }
 
-    public object VisitAssignExpr(Expr.Assign stmt)
+    public object VisitAssignExpr(Expr.Assign expr)
     {
-        object value = Evaluate(stmt.Value);
-        _environment.Assign(stmt.Name, value);
+        object value = Evaluate(expr.Value);
+        
+        if (_locals.TryGetValue(expr, out int distance))
+        {
+            _environment.AssignAt(distance, expr.Name, value);
+        }
+        else
+        {
+            _globals.Assign(expr.Name, value);
+        }
+        
         return value;
     }
 
     public object VisitVariableExpr(Expr.Variable expr)
     {
-        return _environment.Get(expr.Name);
+        return LookupVariable(expr.Name, expr);
+    }
+    
+    private object LookupVariable(Token name, Expr expr)
+    {
+        if (_locals.TryGetValue(expr, out int distance))
+        {
+            return _environment.GetAt(distance, name.Lexeme);
+        }
+        return _globals.Get(name);
     }
 
     private void CheckNumberOperand(Token op, object operand)
@@ -282,6 +301,11 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     private void Execute(Stmt stmt)
     {
         stmt.Accept(this);
+    }
+
+    public void Resolve(Expr expr, int depth)
+    {
+        _locals[expr] = depth;
     }
 
     public void ExecuteBlock(List<Stmt> statements, Environment environment)

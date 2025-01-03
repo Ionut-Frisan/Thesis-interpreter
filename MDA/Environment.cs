@@ -22,17 +22,33 @@ public class Environment
         // TODO: might want to check if the name already is in the map so that redefining of variables is not allowed
         _values.Add(name, value);
     }
+    
+    public Environment Ancestor(int distance)
+    {
+        Environment environment = this;
+        for (int i = 0; i < distance; i++)
+        {
+            environment = environment.Enclosing!;
+        }
+
+        return environment;
+    }
 
     public object Get(Token name)
     {
         if (_values.ContainsKey(name.Lexeme))
         {
-            return _values[name.Lexeme];
+            return _values[name.Lexeme]!;
         }
         
         if (Enclosing != null) return Enclosing.Get(name);
         
         throw new RuntimeError(name, $"Undefined variable '{name.Lexeme}'.");
+    }
+    
+    public object GetAt(int distance, string name)
+    {
+        return Ancestor(distance)._values[name]!;
     }
 
     public void Assign(Token name, object? value)
@@ -50,5 +66,10 @@ public class Environment
         }
         
         throw new RuntimeError(name, $"Undefined variable '{name.Lexeme}'.");
+    }
+
+    public void AssignAt(int distance, Token name, object value)
+    {
+        Ancestor(distance)._values[name.Lexeme] = value;
     }
 }
