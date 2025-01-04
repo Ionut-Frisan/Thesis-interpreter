@@ -7,6 +7,7 @@ namespace MDA;
 public abstract class Stmt {
   public interface IVisitor <T> {
     T VisitBlockStmt(Block stmt);
+    T VisitClassStmt(Class stmt);
     T VisitExpressionStmt(Expression stmt);
     T VisitFunctionStmt(Function stmt);
     T VisitIfStmt(If stmt);
@@ -26,6 +27,20 @@ public abstract class Stmt {
     }
 
     public List<Stmt> Statements { get; set; }
+  }
+
+  public class Class : Stmt {
+    public Class(Token name, List<Stmt.Function> methods) {
+      this.Name = name;
+      this.Methods = methods;
+    }
+
+     public override T Accept<T>(IVisitor<T> visitor) {
+      return visitor.VisitClassStmt(this);
+    }
+
+    public Token Name { get; set; }
+    public List<Stmt.Function> Methods { get; set; }
   }
 
   public class Expression : Stmt {

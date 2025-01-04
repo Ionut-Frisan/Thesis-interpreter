@@ -5,6 +5,14 @@ public class Resolver : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     private readonly Interpreter _interpreter;
     private readonly Stack<IDictionary<string, bool>> _scopes = new Stack<IDictionary<string, bool>>();
     private FunctionType _currentFunction = FunctionType.NONE;
+
+    private enum ClassType
+    {
+        NONE,
+        CLASS,
+    }
+    
+    private ClassType _currentClass = ClassType.NONE;
     
     public Resolver(Interpreter interpreter)
     {
@@ -18,7 +26,35 @@ public class Resolver : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         EndScope();
         return null;
     }
-    
+
+    public object? VisitClassStmt(Stmt.Class stmt)
+    {
+        ClassType enclosingClass = _currentClass;
+        _currentClass = ClassType.CLASS;
+        
+        Declare(stmt.Name);
+        Define(stmt.Name);
+        
+        BeginScope();
+        _scopes.Peek()["this"] = true;
+        
+        foreach(Stmt.Function method in stmt.Methods)
+        {
+            FunctionType declaration = FunctionType.METHOD;
+            if (method.Name.Lexeme.Equals("init"))
+            {
+                declaration = FunctionType.INITIALIZER;
+            }
+            
+            ResolveFunction(method, declaration);
+        }
+        
+        EndScope();
+        
+        _currentClass = enclosingClass;
+        return null;
+    }
+
     public object? VisitExpressionStmt(Stmt.Expression stmt)
     {
         Resolve(stmt.Expr);
@@ -48,6 +84,10 @@ public class Resolver : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         
         if (stmt.Value != null)
         {
+            if (_currentFunction == FunctionType.INITIALIZER)
+            {
+                Mda.Error(stmt.Keyword, "Cannot return a value from an initializer.");
+            }
             Resolve(stmt.Value);
         }
         return null;
@@ -106,6 +146,12 @@ public class Resolver : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         return null;
     }
     
+    public object? VisitGetExpr(Expr.Get expr)
+    {
+        Resolve(expr.Obj);
+        return null;
+    }
+    
     public object? VisitGroupingExpr(Expr.Grouping expr)
     {
         Resolve(expr.Expr);
@@ -121,6 +167,26 @@ public class Resolver : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     {
         Resolve(expr.Left);
         Resolve(expr.Right);
+        return null;
+    }
+
+    public object? VisitSetExpr(Expr.Set expr)
+    {
+        Resolve(expr.Value);
+        Resolve(expr.Obj);
+        
+        return null;
+    }
+    
+    public object? VisitThisExpr(Expr.This expr)
+    {
+        if (_currentClass == ClassType.NONE)
+        {
+            Mda.Error(expr.Keyword, "Cannot use 'this' outside of a class.");
+            return null;
+        }
+        
+        ResolveLocal(expr, expr.Keyword);
         return null;
     }
     

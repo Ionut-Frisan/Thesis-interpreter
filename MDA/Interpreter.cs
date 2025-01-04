@@ -1,4 +1,5 @@
 using MDA.Builtins;
+using MDA.Builtins.IO;
 
 namespace MDA;
 
@@ -13,6 +14,7 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         _environment = _globals;
 
         _globals.Define("clock", new ClockFunction());
+        _globals.Define("IO", new IOClass());
     }
     
     public void Interpret(List<Stmt> statements)
@@ -46,6 +48,25 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         }
         
         return Evaluate(expr.Right);
+    }
+    
+    public object VisitSetExpr(Expr.Set expr)
+    {
+        object obj = Evaluate(expr.Obj);
+        
+        if (!(obj is MdaInstance))
+        {
+            throw new RuntimeError(expr.Name, "Only instances have fields.");
+        }
+
+        object value = Evaluate(expr.Value);
+        ((MdaInstance)obj).Set(expr.Name, value);
+        return value;
+    }
+    
+    public object VisitThisExpr(Expr.This expr)
+    {
+        return LookupVariable(expr.Keyword, expr);
     }
 
     public object VisitLiteralExpr(Expr.Literal expr)
@@ -163,6 +184,17 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         
         return function.Call(this, arguments);
     }
+    
+    public object VisitGetExpr(Expr.Get expr)
+    {
+        object obj = Evaluate(expr.Obj);
+        if (obj is MdaInstance instance)
+        {
+            return instance.Get(expr.Name);
+        }
+
+        throw new RuntimeError(expr.Name, "Only instances have properties.");
+    }
 
     public object? VisitIfStmt(Stmt.If stmt)
     {
@@ -231,6 +263,22 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     public object? VisitBlockStmt(Stmt.Block stmt)
     {
         ExecuteBlock(stmt.Statements, new Environment(_environment));
+        return null;
+    }
+
+    public object? VisitClassStmt(Stmt.Class stmt)
+    {
+        _environment.Define(stmt.Name.Lexeme, null);
+        
+        IDictionary<string, MdaFunction> methods = new Dictionary<string, MdaFunction>();
+        foreach (Stmt.Function method in stmt.Methods)
+        {
+            MdaFunction function = new MdaFunction(method, _environment, method.Name.Lexeme.Equals("init"));
+            methods[method.Name.Lexeme] = function;
+        }
+        
+        MdaClass klass = new MdaClass(stmt.Name.Lexeme, methods);
+        _environment.Assign(stmt.Name, klass);
         return null;
     }
 

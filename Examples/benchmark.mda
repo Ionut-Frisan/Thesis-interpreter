@@ -9,6 +9,69 @@ fun benchmark(label, code) {
     print label + " took " + (endTime - startTime) + "ms";
 }
 
+class Math {
+  square(n) {
+    return n * n;
+  }
+}
+
+class Person {
+  init(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+  
+  greet() {
+    return "Hello, my name is " + this.name + " and I am " + this.age + " years old.";
+  }
+}
+
+var math = Math();
+var me = Person("John", 25);
+
+// Benchmark class method calls
+fun benchmarkClassMethodCalls() {
+    var math = Math();
+    for (var i = 0; i < 1000000; i = i + 1) {
+        math.square(3);
+    }
+}
+benchmark("Class Method Calls", benchmarkClassMethodCalls);
+
+// Benchmark class instantiation
+fun benchmarkClassInstantiation() {
+    for (var i = 0; i < 1000000; i = i + 1) {
+        var person = Person("Name" + i, i);
+    }
+}
+benchmark("Class Instantiation", benchmarkClassInstantiation);
+
+// Benchmark class property access
+fun benchmarkClassPropertyAccess() {
+    var person = Person("John", 25);
+    var name = "";
+    var age = 0;
+    for (var i = 0; i < 1000000; i = i + 1) {
+        name = person.name;
+        age = person.age;
+    }
+}
+benchmark("Class Property Access", benchmarkClassPropertyAccess);
+
+// Benchmark class method with parameters
+fun benchmarkClassMethodWithParameters() {
+    class Calculator {
+        add(a, b) {
+            return a + b;
+        }
+    }
+    var calculator = Calculator();
+    for (var i = 0; i < 1000000; i = i + 1) {
+        calculator.add(1, 1);
+    }
+}
+benchmark("Class Method with Parameters", benchmarkClassMethodWithParameters);
+
 // Benchmark arithmetic operations
 fun benchmarkArithmetic() {
     var result = 0;

@@ -29,6 +29,7 @@ public class Parser
     {
         try
         {
+            if (Match(TokenType.CLASS)) return ClassDeclaration();
             if (Match(TokenType.FUN)) return Function("function");
             if (Match(TokenType.VAR)) return VarDeclaration();
 
@@ -39,6 +40,22 @@ public class Parser
             Syncronize();
             return null;
         }
+    }
+
+    private Stmt ClassDeclaration()
+    {
+        Token name = Consume(TokenType.IDENTIFIER, "Expect class name.");
+        Consume(TokenType.LEFT_BRACE, "Expect '{' before class body.");
+        
+        List<Stmt.Function> methods = new List<Stmt.Function>();
+        while (!Check(TokenType.RIGHT_BRACE) && !IsAtEnd())
+        {
+            methods.Add(Function("method"));
+        }
+
+        Consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.");
+
+        return new Stmt.Class(name, methods);
     }
 
     private Stmt Statement()
@@ -247,6 +264,11 @@ public class Parser
                 Token name = ((Expr.Variable)expr).Name;
                 return new Expr.Assign(name, value);
             }
+            // This is a trick to not parse the set expression and reuse the existing get expression
+            else if (expr is Expr.Get get)
+            {
+                return new Expr.Set(get.Obj, get.Name, value);
+            }
             
             Error(equals, "Invalid assignment target.");
         }
@@ -375,6 +397,11 @@ public class Parser
             if (Match(TokenType.LEFT_PAREN))
             {
                 expr = FinishCall(expr);
+            } 
+            else if (Match(TokenType.DOT))
+            {
+                Token name = Consume(TokenType.IDENTIFIER, "Expected property name after '.'.");
+                expr = new Expr.Get(expr, name);
             }
             else
             {
@@ -424,6 +451,8 @@ public class Parser
         {
             return new Expr.Literal(Previous().Literal);
         }
+
+        if (Match(TokenType.THIS)) return new Expr.This(Previous());
 
         if (Match(TokenType.IDENTIFIER))
         {

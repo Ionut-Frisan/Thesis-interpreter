@@ -4,11 +4,20 @@ public class MdaFunction : IMdaCallable
 {
     private readonly Stmt.Function _declaration;
     private readonly Environment _closure;
+    private readonly bool _isInitializer;
 
-    public MdaFunction(Stmt.Function declaration, Environment closure)
+    public MdaFunction(Stmt.Function declaration, Environment closure, bool isInitializer = false)
     {
         _declaration = declaration;
         _closure = closure;
+        _isInitializer = isInitializer;
+    }
+    
+    public MdaFunction Bind(MdaInstance instance)
+    {
+        Environment environment = new Environment(_closure);
+        environment.Define("this", instance);
+        return new MdaFunction(_declaration, environment);
     }
 
     public object? Call(Interpreter interpreter, ICollection<object> arguments)
@@ -25,8 +34,13 @@ public class MdaFunction : IMdaCallable
         }
         catch (Return returnValue)
         {
+            if (_isInitializer) return _closure.GetAt(0, "this");
+            
             return returnValue.Value;
         }
+        
+        // return the instance from the intializer
+        if (_isInitializer) return _closure.GetAt(0, "this");
         return null;
     }
     
