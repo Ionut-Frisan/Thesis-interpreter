@@ -82,40 +82,72 @@ public class Scanner
             _column++;
             break;
         case '-':
-            AddToken(TokenType.MINUS);
-            _column++;
+            if (Match('-'))
+            {
+                AddToken(TokenType.MINUS_MINUS);
+                _column += 2;
+            }
+            else
+            {
+                if (Match('='))
+                {
+                    AddToken(TokenType.MINUS_EQUAL);
+                    _column += 2;
+                }
+                else
+                {
+                    AddToken(TokenType.MINUS);
+                    _column++;
+                }
+            }
             break;
         case '+':
-            AddToken(TokenType.PLUS);
-            _column++;
+            if (Match('+'))
+            {
+                AddToken(TokenType.PLUS_PLUS);
+                _column += 2;
+            }
+            else
+            {
+                if (Match('='))
+                {
+                    AddToken(TokenType.PLUS_EQUAL);
+                    _column += 2;
+                }
+                else
+                {
+                    AddToken(TokenType.PLUS);
+                    _column++;
+                }
+            }
             break;
         case ';':
             AddToken(TokenType.SEMICOLON);
             _column++;
             break;
         case '*':
-            AddToken(TokenType.STAR);
-            _column++;
+            AddToken(Match('=') ? TokenType.STAR_EQUAL : TokenType.STAR);
+            _column += Match('=') ? 2 : 1;
             break;
         case '%':
-            AddToken(TokenType.PERCENT);
-            _column++;
+            AddToken(Match('=') ? TokenType.PERCENT_EQUAL : TokenType.PERCENT);
+            _column += Match('=') ? 2 : 1;
             break;
         case '!':
             AddToken(Match('=') ? TokenType.BANG_EQUAL : TokenType.BANG);
-            _column += 2;
+            _column += Match('=') ? 2 : 1;
             break;
         case '=':
             AddToken(Match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL);
-            _column += 2;
+            _column += Match('=') ? 2 : 1;
             break;
         case '<':
             AddToken(Match('=') ? TokenType.LESS_EQUAL : TokenType.LESS);
-            _column += 2;
+            _column += Match('=') ? 2 : 1;
             break;
         case '>':
             AddToken(Match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
-            _column += 2;
+            _column += Match('=') ? 2 : 1;
             break;
         case '/':
             if (Match('/'))
@@ -125,9 +157,18 @@ public class Scanner
             }
             else
             {
-                AddToken(TokenType.SLASH);
-                _column++;
+                if (Match('='))
+                {
+                    AddToken(TokenType.SLASH_EQUAL);
+                    _column += 2;
+                }
+                else
+                {
+                    AddToken(TokenType.SLASH);
+                    _column++;
+                }
             }
+
             break;
         case ' ':
         case '\r':

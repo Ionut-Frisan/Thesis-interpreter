@@ -25,6 +25,13 @@ public enum TokenType
     GREATER_EQUAL,
     LESS,
     LESS_EQUAL,
+    PLUS_PLUS,
+    MINUS_MINUS,
+    PLUS_EQUAL,
+    MINUS_EQUAL,
+    SLASH_EQUAL,
+    STAR_EQUAL,
+    PERCENT_EQUAL,
 
     // Literals.
     IDENTIFIER,

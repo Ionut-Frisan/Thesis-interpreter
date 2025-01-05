@@ -45,16 +45,16 @@ public class Parser
     private Stmt ClassDeclaration()
     {
         Token name = Consume(TokenType.IDENTIFIER, "Expect class name.");
-        
+
         Expr.Variable superclass = null;
         if (Match(TokenType.LESS))
         {
             Consume(TokenType.IDENTIFIER, "Expect superclass name.");
             superclass = new Expr.Variable(Previous());
         }
-        
+
         Consume(TokenType.LEFT_BRACE, "Expect '{' before class body.");
-        
+
         List<Stmt.Function> methods = new List<Stmt.Function>();
         while (!Check(TokenType.RIGHT_BRACE) && !IsAtEnd())
         {
@@ -81,14 +81,15 @@ public class Parser
     private Stmt ForStatement()
     {
         Consume(TokenType.LEFT_PAREN, "Expected '(' after 'for'.");
-        
+
         Stmt? initializer;
         if (Match(TokenType.SEMICOLON))
-        {   
+        {
             // Initializer can be omitted.
             // for( ; <condition> ; <increment>)
             initializer = null;
-        } else if (Match(TokenType.VAR))
+        }
+        else if (Match(TokenType.VAR))
         {
             initializer = VarDeclaration();
         }
@@ -102,17 +103,19 @@ public class Parser
         {
             condition = Expression();
         }
+
         Consume(TokenType.SEMICOLON, "Expected ';' after 'for' condition.");
-        
+
         Expr? increment = null;
         if (!Check(TokenType.RIGHT_PAREN))
         {
             increment = Expression();
         }
+
         Consume(TokenType.RIGHT_PAREN, "Expected ')' after 'for' clauses.");
-        
+
         Stmt body = Statement();
-        
+
         // Since for is just syntactic sugar over a while, we desugarize the for statement into a while statement
         // for (<initializer>; <condition>; <increment> becomes
         // <initializer>; while (<condiiton>) { ...bodu, <increment> };
@@ -124,7 +127,7 @@ public class Parser
                 new Stmt.Expression(increment)
             });
         }
-        
+
         if (condition == null) condition = new Expr.Literal(true);
         body = new Stmt.While(condition, body);
 
@@ -132,10 +135,10 @@ public class Parser
         {
             body = new Stmt.Block(new List<Stmt> { initializer, body });
         }
-        
+
         return body;
     }
-    
+
     private Stmt VarDeclaration()
     {
         Token name = Consume(TokenType.IDENTIFIER, "Expected variable name.");
@@ -156,7 +159,7 @@ public class Parser
         Expr condition = Expression();
         Consume(TokenType.RIGHT_PAREN, "Expected ')' after 'while'.");
         Stmt body = Statement();
-        
+
         return new Stmt.While(condition, body);
     }
 
@@ -165,17 +168,17 @@ public class Parser
         Consume(TokenType.LEFT_PAREN, "Expected '(' after if.");
         Expr condition = Expression();
         Consume(TokenType.RIGHT_PAREN, "Expected ')' after if condition.");
-        
+
         Stmt thenBranch = Statement();
         Stmt? elseBranch = null;
         if (Match(TokenType.ELSE))
         {
             elseBranch = Statement();
         }
-        
+
         return new Stmt.If(condition, thenBranch, elseBranch);
     }
-    
+
     private Stmt PrintStatement()
     {
         Expr value = Expression();
@@ -191,7 +194,7 @@ public class Parser
         {
             value = Expression();
         }
-        
+
         Consume(TokenType.SEMICOLON, "Expected ';' after return value.");
         return new Stmt.Return(keyword, value);
     }
@@ -208,13 +211,13 @@ public class Parser
     {
         // Get function name
         Token name = Consume(TokenType.IDENTIFIER, $"Expected {kind} name.");
-        
+
         // Check for opening parenthesis for parameters
         Consume(TokenType.LEFT_PAREN, $"Expected '(' after {kind} name.");
-        
+
         // Initialize parameters list
         List<Token> parameters = new List<Token>();
-        
+
         // If we have (), we skip parsing the parameters as there will be none
         if (!Check(TokenType.RIGHT_PAREN))
         {
@@ -225,17 +228,18 @@ public class Parser
                 {
                     Error(Peek(), "Can't have more than 255 parameters.");
                 }
-                    
+
                 // Add parameter to list
                 parameters.Add(Consume(TokenType.IDENTIFIER, "Expected parameter name."));
             } while (Match(TokenType.COMMA));
         }
+
         // Check for closing parenthesis
         Consume(TokenType.RIGHT_PAREN, "Expected ')' after parameters.");
-        
+
         // Check for left brace
         Consume(TokenType.LEFT_BRACE, "Expected '{' before" + kind + " body");
-        
+
         List<Stmt> body = Block();
         return new Stmt.Function(name, parameters, body);
     }
@@ -248,7 +252,7 @@ public class Parser
         {
             statements.Add(Declaration());
         }
-        
+
         Consume(TokenType.RIGHT_BRACE, "Expect '}' after block.");
         return statements;
     }
@@ -267,18 +271,88 @@ public class Parser
             Token equals = Previous();
             Expr value = Assignment();
 
-            if (expr is Expr.Variable)
+            if (expr is Expr.Variable variable)
             {
-                Token name = ((Expr.Variable)expr).Name;
-                return new Expr.Assign(name, value);
+                return new Expr.Assign(variable.Name, value);
             }
-            // This is a trick to not parse the set expression and reuse the existing get expression
-            else if (expr is Expr.Get get)
+            if (expr is Expr.Get get)
             {
                 return new Expr.Set(get.Obj, get.Name, value);
             }
-            
+
             Error(equals, "Invalid assignment target.");
+        }
+
+        if (Match(TokenType.PLUS_EQUAL, TokenType.MINUS_EQUAL, TokenType.STAR_EQUAL,
+                TokenType.SLASH_EQUAL, TokenType.PERCENT_EQUAL))
+        {
+            Token operatorToken = Previous();
+            Expr value = Assignment();
+            TokenType compoundType = operatorToken.Type;
+
+            Expr? desugaredExpr = expr switch
+            {
+                Expr.Variable variable => new Expr.Binary(
+                    new Expr.Variable(variable.Name),
+                    GetEquivalentOperator(compoundType, operatorToken),
+                    value
+                ),
+                Expr.Get get => new Expr.Binary(
+                    new Expr.Get(get.Obj, get.Name),
+                    GetEquivalentOperator(compoundType, operatorToken),
+                    value
+                ),
+                _ => null
+            };
+            
+            if (desugaredExpr == null)
+            {
+                Mda.Error(operatorToken, "Invalid assignment target for compound assignment operator.");
+            }
+
+            return expr switch
+            {
+                Expr.Variable variable => new Expr.Assign(variable.Name, desugaredExpr),
+                Expr.Get get => new Expr.Set(get.Obj, get.Name, desugaredExpr),
+                _ => expr // Unreachable, but required to satisfy the compiler
+            };
+        }
+
+        if (Match(TokenType.PLUS_PLUS, TokenType.MINUS_MINUS))
+        {
+            Token operatorToken = Previous();
+            TokenType incrementType = operatorToken.Type;
+
+            Expr? desugaredExpr = expr switch
+            {
+                Expr.Variable variable => new Expr.Binary(
+                    new Expr.Variable(variable.Name),
+                    incrementType == TokenType.PLUS_PLUS
+                        ? new Token(TokenType.PLUS, "+", null, operatorToken.Line, operatorToken.Column)
+                        : new Token(TokenType.MINUS, "-", null, operatorToken.Line, operatorToken.Column),
+                    new Expr.Literal(1.0)
+                ),
+                Expr.Get get => new Expr.Binary(
+                    new Expr.Get(get.Obj, get.Name),
+                    incrementType == TokenType.PLUS_PLUS
+                        ? new Token(TokenType.PLUS, "+", null, operatorToken.Line, operatorToken.Column)
+                        : new Token(TokenType.MINUS, "-", null, operatorToken.Line, operatorToken.Column),
+                    new Expr.Literal(1.0)
+                ),
+                _ => null
+            };
+            
+            if (desugaredExpr == null)
+            {
+                Mda.Error(operatorToken, "Invalid assignment target for increment/decrement operator.");
+            }
+
+            return expr switch
+            {
+                Expr.Variable variable => new Expr.Assign(variable.Name, desugaredExpr),
+                Expr.Get get => new Expr.Set(get.Obj, get.Name, desugaredExpr),
+                _ => expr // Unreachable, but required to satisfy the compiler
+            };
         }
 
         return expr;
@@ -294,7 +368,7 @@ public class Parser
             Expr right = And();
             expr = new Expr.Logical(expr, op, right);
         }
-        
+
         return expr;
     }
 
@@ -308,7 +382,7 @@ public class Parser
             Expr right = Equality();
             expr = new Expr.Logical(expr, op, right);
         }
-        
+
         return expr;
     }
 
@@ -405,7 +479,7 @@ public class Parser
             if (Match(TokenType.LEFT_PAREN))
             {
                 expr = FinishCall(expr);
-            } 
+            }
             else if (Match(TokenType.DOT))
             {
                 Token name = Consume(TokenType.IDENTIFIER, "Expected property name after '.'.");
@@ -435,13 +509,14 @@ public class Parser
                 {
                     Error(Peek(), "Can't have more than 255 arguments.");
                 }
+
                 arguments.Add(Expression());
             } while (Match(TokenType.COMMA));
         }
-        
+
         // check for closing parenthesis after arguments list
         Token paren = Consume(TokenType.RIGHT_PAREN, "Expected ')' after arguments.");
-        
+
         return new Expr.Call(callee, paren, arguments);
     }
 
@@ -589,5 +664,18 @@ public class Parser
     private Token Previous()
     {
         return _tokens[_current - 1];
+    }
+
+    private Token GetEquivalentOperator(TokenType compoundType, Token token)
+    {
+        return compoundType switch
+        {
+            TokenType.PLUS_EQUAL => new Token(TokenType.PLUS, "+", null, token.Line, token.Column),
+            TokenType.MINUS_EQUAL => new Token(TokenType.MINUS, "-", null, token.Line, token.Column),
+            TokenType.STAR_EQUAL => new Token(TokenType.STAR, "*", null, token.Line, token.Column),
+            TokenType.SLASH_EQUAL => new Token(TokenType.SLASH, "/", null, token.Line, token.Column),
+            TokenType.PERCENT_EQUAL => new Token(TokenType.PERCENT, "%", null, token.Line, token.Column),
+            _ => throw new ArgumentException("Unknown compound assignment type."),
+        };
     }
 }

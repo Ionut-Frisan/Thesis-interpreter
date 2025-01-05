@@ -47,6 +47,22 @@ class Employee < Person {
 var person = Person("John", 25);
 var employee = Employee("Jane", 30, "Developer");
 
+fun benchmarkAddition() {
+    var result = 0;
+    for (var i = 0; i < 1000000; i = i + 1) {
+        result = result + 1;
+    }
+}
+benchmark("Addition", benchmarkAddition);
+
+fun benchmarkCompundAddition() {
+    var result = 0;
+    for (var i = 0; i < 1000000; i = i + 1) {
+        result ++;
+    }
+}
+benchmark("Compound Addition", benchmarkCompundAddition);
+
 // Benchmark subclass instantiation
 fun benchmarkSubclassInstantiation() {
     for (var i = 0; i < 1000000; i = i + 1) {
