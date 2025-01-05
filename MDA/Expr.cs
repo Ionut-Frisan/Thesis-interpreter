@@ -15,6 +15,7 @@ public abstract class Expr {
     T VisitLiteralExpr(Literal expr);
     T VisitLogicalExpr(Logical expr);
     T VisitThisExpr(This expr);
+    T VisitSuperExpr(Super expr);
     T VisitUnaryExpr(Unary expr);
     T VisitVariableExpr(Variable expr);
   }
@@ -145,6 +146,20 @@ public abstract class Expr {
     }
 
     public Token Keyword { get; set; }
+  }
+
+  public class Super : Expr {
+    public Super(Token keyword, Token method) {
+      this.Keyword = keyword;
+      this.Method = method;
+    }
+
+     public override T Accept<T>(IVisitor<T> visitor) {
+      return visitor.VisitSuperExpr(this);
+    }
+
+    public Token Keyword { get; set; }
+    public Token Method { get; set; }
   }
 
   public class Unary : Expr {

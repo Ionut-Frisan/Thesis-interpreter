@@ -3,11 +3,13 @@ namespace MDA;
 public class MdaClass : IMdaCallable
 {
     public readonly string Name;
+    public readonly MdaClass? Superclass;
     private readonly IDictionary<string, MdaFunction> _methods;
     
-    public MdaClass(string name, IDictionary<string, MdaFunction> methods)
+    public MdaClass(string name,  MdaClass? superclass, IDictionary<string, MdaFunction> methods)
     {
         Name = name;
+        Superclass = superclass;
         _methods = methods;
     }
     
@@ -17,6 +19,12 @@ public class MdaClass : IMdaCallable
         {
             return _methods[name];
         }
+        
+        if (Superclass != null)
+        {
+            return Superclass.FindMethod(name);
+        }
+        
         return null;
     }
     

@@ -4,7 +4,7 @@ namespace MDA;
 
 public class Environment
 {
-    private Environment? Enclosing { get; set; }
+    public Environment? Enclosing { get; set; }
     private readonly Hashtable _values = new Hashtable();
 
     public Environment()

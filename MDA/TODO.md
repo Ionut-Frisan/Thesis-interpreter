@@ -53,3 +53,63 @@ Examples:
 -- -> a-- -> a = a - 1
 ```
 
+### Class getters and setters
+```mda
+class Person {
+    var name;
+    var age;
+
+    get isAdult {
+        return age >= 18;
+    }
+
+    set isAdult(value) {
+        if (value) {
+            age = 18;
+        } else {
+            age = 17;
+        }
+    }
+}
+```
+
+### Static methods
+```mda
+class Math {
+    static sum(a, b) {
+        return a + b;
+    }
+}
+```
+
+### Static variables
+```mda
+class Math {
+    static PI = 3.14159265359;
+}
+```
+
+### Static classes
+```mda
+static class Math {
+    static sum(a, b) {
+        return a + b;
+    }
+}
+```
+
+### Private/public modifers
+```mda
+class Person {
+    private var name;
+    public var age;
+    
+    public getName() {
+        return name;
+    }
+    
+    private isAdult() {
+        return age >= 18;
+    }
+}
+```

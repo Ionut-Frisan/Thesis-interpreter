@@ -94,11 +94,11 @@ class Mda
     {
         if (token.Type == TokenType.EOF)
         {
-            Report(token.Line, " at end", message);
+            Report(token.Line, "at end", message);
         }
         else
         {
-            Report(token.Line, " at ", "'" + token.Lexeme + "' " + message);
+            Report(token.Line, "at", "'" + token.Lexeme + "' " + message);
         }
     }
 
@@ -110,7 +110,7 @@ class Mda
 
     public static void RuntimeError(RuntimeError error)
     {
-        Console.Error.WriteLine($"{error.Message}\n[line {error.Token.Line}]");
+        Console.Error.WriteLine($"[line {error.Token.Line}] {error.Message}{error.Message}");
         _hadRuntimeError = true;
     }
 }
