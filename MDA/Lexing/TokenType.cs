@@ -14,6 +14,7 @@ public enum TokenType
     SEMICOLON,
     SLASH,
     STAR,
+    PERCENT,
 
     // One or two character tokens.
     BANG,
