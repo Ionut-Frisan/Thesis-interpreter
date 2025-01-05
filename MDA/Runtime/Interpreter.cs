@@ -148,7 +148,7 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
                 // Support concacatenation of strings and numbers
                 if (left is string && right is double || left is double && right is string)
                 {
-                    return Stringify(left) + Stringify(right);
+                    return Utils.Stringify(left) + Utils.Stringify(right);
                 }
 
                 throw new RuntimeError(expr.Op, "Operands must be two strings or two numbers or a combination of strings and numbers.");
@@ -241,7 +241,7 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     public object? VisitPrintStmt(Stmt.Print stmt)
     {
         object value = Evaluate(stmt.Expr);
-        Console.WriteLine(Stringify(value));
+        Console.WriteLine(Utils.Stringify(value));
         return null;
     }
 
@@ -358,6 +358,8 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     private void CheckNumberOperands(Token op, object left, object right)
     {
         if (left is double && right is double) return;
+        Console.WriteLine(left.GetType());
+        Console.WriteLine(right.GetType());
         throw new RuntimeError(op, "Operands must be numbers");
     }
 
@@ -408,23 +410,5 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         {
             _environment = previous;
         }
-    }
-
-    private string Stringify(object? value)
-    {
-        if (value == null) return "null";
-        if (value is double)
-        {
-            string text = ((double)value).ToString();
-
-            if (text.EndsWith(".0"))
-            {
-                text = text.Substring(0, text.Length - 2);
-            }
-
-            return text;
-        }
-
-        return value.ToString();
     }
 }

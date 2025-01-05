@@ -1,1 +1,72 @@
-2++;
+var a = 1;
+a++;
+print a; // Expected: 2
+
+a = 2;
+a--;
+print a; // Expected: 1
+
+a = 1;
+a += 2;
+print a; // Expected: 3
+
+a = 3;
+a -= 2;
+print a; // Expected: 1
+
+a = 1;
+a *= 2;
+print a; // Expected: 2
+
+a = 2;
+a /= 2;
+print a; // Expected: 1
+
+a = 1;
+a %= 2;
+print a; // Expected: 1
+
+a = 2;
+a *= 2 + 3;
+print a; // Expected: 10
+
+// Additional operations
+a = 5;
+a += 3 * 2;
+print a; // Expected: 11
+
+a = 11;
+a -= 4 / 2;
+print a; // Expected: 9
+
+a = 9;
+a *= 2 - 1;
+print a; // Expected: 9
+
+a = 9;
+a /= 3 + 1;
+print a; // Expected: 2.25
+
+a = 2.25;
+a %= 2;
+print a; // Expected: 0.25
+
+a = 10;
+a += (2 + 3) * 2;
+print a; // Expected: 20
+
+a = 20;
+a -= (4 - 1) / 1;
+print a; // Expected: 17
+
+a = 17;
+a *= (2 + 1) - 1;
+print a; // Expected: 34
+
+a = 34;
+a /= (6 / 2) + 1;
+print a; // Expected: 8.5
+
+a = 6.8;
+a %= (3 + 2) - 1;
+print a; // Expected: 2.8

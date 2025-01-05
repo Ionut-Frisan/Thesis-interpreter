@@ -59,6 +59,8 @@ Examples:
 -- -> a-- -> a = a - 1 - DONE
 ```
 
+### Try/catch/finally
+
 ### Class getters and setters
 ```mda
 class Person {

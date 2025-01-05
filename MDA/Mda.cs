@@ -66,15 +66,18 @@ class Mda
 
         Parser parser = new Parser(tokens);
         List<Stmt> statements = parser.Parse();
+        
+        Optimizer optimizer = new Optimizer(statements);
+        statements = optimizer.Optimize();
 
         // Stop if there was a syntax error.
         if (_hadError) return;
         
-        // AstPrinter printer = new AstPrinter();
-        // foreach (var statement in statements)
-        // {
-        //     Console.WriteLine(printer.Print(statement));
-        // }
+        AstPrinter printer = new AstPrinter();
+        foreach (var statement in statements)
+        {
+            Console.WriteLine(printer.Print(statement));
+        }
         
         Resolver resolver = new Resolver(Interpreter);
         resolver.Resolve(statements);
