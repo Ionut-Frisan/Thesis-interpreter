@@ -7,6 +7,7 @@ public class Scanner
     private int _start;
     private int _current;
     private int _line = 1;
+    private int _column = 1;
     private static Dictionary<string, TokenType> _keywords;
 
     public Scanner(string source)
@@ -42,7 +43,7 @@ public class Scanner
             ScanToken();
         }
 
-        _tokens.Add(new Token(TokenType.EOF, "", null, _line));
+        _tokens.Add(new Token(TokenType.EOF, "", null, _line, _column));
         return _tokens;
     }
 
@@ -52,73 +53,114 @@ public class Scanner
     }
 
     private void ScanToken()
+{
+    char c = Advance();
+    switch (c)
     {
-        char c = Advance();
-        switch (c)
-        {
-            case '(': AddToken(TokenType.LEFT_PAREN); break;
-            case ')': AddToken(TokenType.RIGHT_PAREN); break;
-            case '{': AddToken(TokenType.LEFT_BRACE); break;
-            case '}': AddToken(TokenType.RIGHT_BRACE); break;
-            case ',': AddToken(TokenType.COMMA); break;
-            case '.': AddToken(TokenType.DOT); break;
-            case '-': AddToken(TokenType.MINUS); break;
-            case '+': AddToken(TokenType.PLUS); break;
-            case ';': AddToken(TokenType.SEMICOLON); break;
-            case '*': AddToken(TokenType.STAR); break;
-            case '%': AddToken(TokenType.PERCENT); break;
-            case '!':
-                AddToken(Match('=') ? TokenType.BANG_EQUAL : TokenType.BANG);
-                break;
-            case '=':
-                AddToken(Match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL);
-                break;
-            case '<':
-                AddToken(Match('=') ? TokenType.LESS_EQUAL : TokenType.LESS);
-                break;
-            case '>':
-                AddToken(Match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
-                break;
-            case '/':
-                if (Match('/'))
-                {
-                    // A comment goes until the end of the line.
-                    while (Peek() != '\n' && !IsAtEnd()) Advance();
-                }
-                else
-                {
-                    AddToken(TokenType.SLASH);
-                }
-
-                break;
-            case ' ':
-            case '\r':
-            case '\t':
-                // Ignore whitespace.
-                break;
-
-            case '\n':
-                _line++;
-                break;
-            case '"': ProcessString(); break;
-
-            default:
-                if (IsDigit(c))
-                {
-                    ProcessNumber();
-                }
-                else if (IsAlpha(c))
-                {
-                    Identifier();
-                }
-                else
-                {
-                    Mda.Error(_line, $"Unrecognized character '{c}'");
-                }
-
-                break;
-        }
+        case '(':
+            AddToken(TokenType.LEFT_PAREN);
+            _column++;
+            break;
+        case ')':
+            AddToken(TokenType.RIGHT_PAREN);
+            _column++;
+            break;
+        case '{':
+            AddToken(TokenType.LEFT_BRACE);
+            _column++;
+            break;
+        case '}':
+            AddToken(TokenType.RIGHT_BRACE);
+            _column++;
+            break;
+        case ',':
+            AddToken(TokenType.COMMA);
+            _column++;
+            break;
+        case '.':
+            AddToken(TokenType.DOT);
+            _column++;
+            break;
+        case '-':
+            AddToken(TokenType.MINUS);
+            _column++;
+            break;
+        case '+':
+            AddToken(TokenType.PLUS);
+            _column++;
+            break;
+        case ';':
+            AddToken(TokenType.SEMICOLON);
+            _column++;
+            break;
+        case '*':
+            AddToken(TokenType.STAR);
+            _column++;
+            break;
+        case '%':
+            AddToken(TokenType.PERCENT);
+            _column++;
+            break;
+        case '!':
+            AddToken(Match('=') ? TokenType.BANG_EQUAL : TokenType.BANG);
+            _column += 2;
+            break;
+        case '=':
+            AddToken(Match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL);
+            _column += 2;
+            break;
+        case '<':
+            AddToken(Match('=') ? TokenType.LESS_EQUAL : TokenType.LESS);
+            _column += 2;
+            break;
+        case '>':
+            AddToken(Match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
+            _column += 2;
+            break;
+        case '/':
+            if (Match('/'))
+            {
+                while (Peek() != '\n' && !IsAtEnd()) Advance();
+                _column += _current - _start;
+            }
+            else
+            {
+                AddToken(TokenType.SLASH);
+                _column++;
+            }
+            break;
+        case ' ':
+        case '\r':
+        case '\t':
+            _column++;
+            break;
+        case '\n':
+            _line++;
+            _column = 1;
+            break;
+        case '"':
+            ProcessString();
+            _column += _current - _start;
+            break;
+        default:
+            if (IsDigit(c))
+            {
+                ProcessNumber();
+                _column += _current - _start;
+            }
+            else if (IsAlpha(c))
+            {
+                Identifier();
+                _column += _current - _start;
+            }
+            else
+            {
+                Mda.Error(_line, _column, $"Unrecognized character '{c}'");
+                _column++;
+            }
+            break;
     }
+}
 
     private bool IsDigit(char c)
     {
@@ -171,7 +213,7 @@ public class Scanner
 
         if (IsAtEnd())
         {
-            Mda.Error(_line, "Unterminated string.");
+            Mda.Error(_line, _column, "Unterminated string.");
             return;
         }
 
@@ -218,6 +260,6 @@ public class Scanner
     private void AddToken(TokenType type, object literal)
     {
         String text = _source.Substring(_start, _current - _start);
-        _tokens.Add(new Token(type, text, literal, _line));
+        _tokens.Add(new Token(type, text, literal, _line, _column));
     }
 }

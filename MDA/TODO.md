@@ -7,10 +7,13 @@
 I am a multi line comment
 */
 
-### % operator
+### % operator - DONE
 Rest of division
 
 ### Operator that gets just the whole part of the result
+
+### Better error reporting
+Add column to the error message - DONE
 
 ### Ternary operator ?:
 

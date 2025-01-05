@@ -72,4 +72,9 @@ public class Environment
     {
         Ancestor(distance)._values[name.Lexeme] = value;
     }
+    
+    public bool Contains(string name)
+    {
+        return _values.ContainsKey(name);
+    }
 }

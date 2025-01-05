@@ -85,32 +85,32 @@ class Mda
         Interpreter.Interpret(statements);
     }
 
-    public static void Error(int line, string message)
+    public static void Error(int line, int column, string message)
     {
-        Report(line, "", message);
+        Report(line, column, "", message);
     }
 
     public static void Error(Token token, string message)
     {
         if (token.Type == TokenType.EOF)
         {
-            Report(token.Line, "at end", message);
+            Report(token.Line, token.Column, "at end", message);
         }
         else
         {
-            Report(token.Line, "at", "'" + token.Lexeme + "' " + message);
+            Report(token.Line, token.Column, "at", "'" + token.Lexeme + "' " + message);
         }
     }
 
-    private static void Report(int line, string where, string message)
+    private static void Report(int line, int column, string where, string message)
     {
-        Console.WriteLine($"[line {line}] Error {where}: {message}");
+        Console.Error.WriteLine($"[line {line}:{column}] Error {where}: {message}");
         _hadError = true;
     }
 
     public static void RuntimeError(RuntimeError error)
     {
-        Console.Error.WriteLine($"[line {error.Token.Line}] {error.Message}{error.Message}");
+        Console.Error.WriteLine($"[line {error.Token.Line}:{error.Token.Column}] {error.Message}");
         _hadRuntimeError = true;
     }
 }
