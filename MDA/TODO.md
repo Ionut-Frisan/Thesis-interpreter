@@ -50,10 +50,13 @@ Examples:
 ```plaintext
 ** on numbers - power - 2 ** 3 = 8
 ** on strings - repeat times - "me" ** 2 = "meme"
-+= -> a += 2 -> a = a + 2
--= -> a -= 2 -> a = a - 2
-++ -> a++ -> a = a + 1
--- -> a-- -> a = a - 1
++= -> a += 2 -> a = a + 2 - DONE
+-= -> a -= 2 -> a = a - 2 - DONE
+*= -> a *= 2 -> a = a * 2 - DONE
+/= -> a /= 2 -> a = a / 2 - DONE
+%= -> a %= 2 -> a = a % 2 - DONE
+++ -> a++ -> a = a + 1 - DONE
+-- -> a-- -> a = a - 1 - DONE
 ```
 
 ### Class getters and setters
