@@ -370,7 +370,7 @@ public class Parser
     {
         Expr expr = Unary();
 
-        while (Match(TokenType.SLASH, TokenType.STAR))
+        while (Match(TokenType.SLASH, TokenType.STAR, TokenType.PERCENT))
         {
             Token op = Previous();
             Expr right = Unary();

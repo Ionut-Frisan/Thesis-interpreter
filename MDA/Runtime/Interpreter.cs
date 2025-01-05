@@ -163,6 +163,9 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
             case TokenType.STAR:
                 CheckNumberOperands(expr.Op, left, right);
                 return (double)left * (double)right;
+            case TokenType.PERCENT:
+                CheckNumberOperands(expr.Op, left, right);
+                return (double)left % (double)right;
         }
 
         // Unreachable.
