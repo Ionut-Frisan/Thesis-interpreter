@@ -49,7 +49,7 @@ var employee = Employee("Jane", 30, "Developer");
 
 fun benchmarkAddition() {
     var result = 0;
-    for (var i = 0; i < 1000000; i = i + 1) {
+    for (var i = 0; i < 100000; i = i + 1) {
         result = result + 1;
     }
 }
@@ -57,7 +57,7 @@ benchmark("Addition", benchmarkAddition);
 
 fun benchmarkCompundAddition() {
     var result = 0;
-    for (var i = 0; i < 1000000; i = i + 1) {
+    for (var i = 0; i < 100000; i = i + 1) {
         result ++;
     }
 }
@@ -65,7 +65,7 @@ benchmark("Compound Addition", benchmarkCompundAddition);
 
 // Benchmark subclass instantiation
 fun benchmarkSubclassInstantiation() {
-    for (var i = 0; i < 1000000; i = i + 1) {
+    for (var i = 0; i < 100000; i = i + 1) {
         var emp = Employee("Jane", 30, "Developer");
     }
 }
@@ -74,7 +74,7 @@ benchmark("Subclass Instantiation", benchmarkSubclassInstantiation);
 // Benchmark subclass method calls
 fun benchmarkSubclassMethodCalls() {
     var emp = Employee("Jane", 30, "Developer");
-    for (var i = 0; i < 1000000; i = i + 1) {
+    for (var i = 0; i < 100000; i = i + 1) {
         emp.promote();
         emp.demote();
     }
@@ -85,7 +85,7 @@ benchmark("Subclass Method Calls", benchmarkSubclassMethodCalls);
 fun benchmarkSubclassFieldAccess() {
     var emp = Employee("Jane", 30, "Developer");
     var position = "";
-    for (var i = 0; i < 1000000; i = i + 1) {
+    for (var i = 0; i < 100000; i = i + 1) {
         position = emp.position;
     }
 }
@@ -95,7 +95,7 @@ benchmark("Subclass Field Access", benchmarkSubclassFieldAccess);
 // Benchmark class method calls
 fun benchmarkClassMethodCalls() {
     var math = Math();
-    for (var i = 0; i < 1000000; i = i + 1) {
+    for (var i = 0; i < 100000; i = i + 1) {
         math.square(3);
     }
 }
@@ -104,7 +104,7 @@ benchmark("Class Method Calls", benchmarkClassMethodCalls);
 // Benchmark class instantiation
 fun benchmarkClassInstantiation() {
     var person = Person("John", 25);
-    for (var i = 0; i < 1000000; i = i + 1) {
+    for (var i = 0; i < 100000; i = i + 1) {
         person = Person("Ionut", 25);
     }
 }
@@ -115,7 +115,7 @@ fun benchmarkClassPropertyAccess() {
     var person = Person("John", 25);
     var name = "";
     var age = 0;
-    for (var i = 0; i < 1000000; i = i + 1) {
+    for (var i = 0; i < 100000; i = i + 1) {
         name = person.name;
         age = person.age;
     }
@@ -130,7 +130,7 @@ fun benchmarkClassMethodWithParameters() {
         }
     }
     var calculator = Calculator();
-    for (var i = 0; i < 1000000; i = i + 1) {
+    for (var i = 0; i < 100000; i = i + 1) {
         calculator.add(1, 1);
     }
 }
@@ -139,7 +139,7 @@ benchmark("Class Method with Parameters", benchmarkClassMethodWithParameters);
 // Benchmark arithmetic operations
 fun benchmarkArithmetic() {
     var result = 0;
-    for (var i = 0; i < 1000000; i = i + 1) {
+    for (var i = 0; i < 100000; i = i + 1) {
         result = 3 + 4 * 2 - 1 / 2;
     }
 }
@@ -158,7 +158,7 @@ benchmark("Function Calls", benchmarkFunctionCalls);
 // Benchmark loop performance
 fun benchmarkLoopPerformance() {
     var sum = 0;
-    for (var i = 0; i < 1000000; i = i + 1) {
+    for (var i = 0; i < 100000; i = i + 1) {
         sum = sum;
     }
 }
@@ -167,7 +167,7 @@ benchmark("Loop Performance", benchmarkLoopPerformance);
 // Benchmark string concatenation
 fun benchmarkStringConcatenation() {
     var str = "";
-    for (var i = 0; i < 1000000; i = i + 1) {
+    for (var i = 0; i < 100000; i = i + 1) {
         str = "a" + "b" + "c" + "d" + "e";
     }
 }
@@ -176,7 +176,7 @@ benchmark("String Concatenation", benchmarkStringConcatenation);
 // Benchmark logical operations
 fun benchmarkLogicalOperations() {
     var result = true;
-    for (var i = 0; i < 1000000; i = i + 1) {
+    for (var i = 0; i < 100000; i = i + 1) {
         result = (i < 500000 and true) or (i >= 500000 and false);
     }
 }
@@ -189,7 +189,7 @@ fun benchmarkNestedFunctionCalls() {
     fun c(x) { return b(x) - 3; }
     
     var result = 0;
-    for (var i = 0; i < 1000000; i = i + 1) {
+    for (var i = 0; i < 100000; i = i + 1) {
         result = c(b(a(i)));
     }
 }
@@ -198,7 +198,7 @@ benchmark("Nested Function Calls", benchmarkNestedFunctionCalls);
 // Benchmark variable scoping
 fun benchmarkVariableScoping() {
     var x = 0;
-    for (var i = 0; i < 1000000; i = i + 1) {
+    for (var i = 0; i < 100000; i = i + 1) {
         var y = i;
         {
             var z = y + 1;
@@ -220,7 +220,7 @@ fun benchmarkArrayLikeOperations() {
     }
 
     var counter = makeCounter();
-    for (var i = 0; i < 1000000; i = i + 1) {
+    for (var i = 0; i < 100000; i = i + 1) {
         counter();
     }
 }
@@ -229,7 +229,7 @@ benchmark("Array-like Operations", benchmarkArrayLikeOperations);
 // Benchmark conditional branching
 fun benchmarkConditionalBranching() {
     var sum = 0;
-    for (var i = 0; i < 1000000; i = i + 1) {
+    for (var i = 0; i < 100000; i = i + 1) {
         if (i / 2 == 0) {
             sum = sum + i;
         } else if (i / 3 == 0) {
@@ -247,7 +247,7 @@ fun benchmarkRecursiveFactorial() {
         if (n <= 1) return 1;
         return n * factorial(n - 1);
     }
-    var result = factorial(10000);
+    var result = factorial(1000);
 }
 benchmark("Recursive Factorial", benchmarkRecursiveFactorial);
 
@@ -260,7 +260,7 @@ fun benchmarkIterativeFactorial() {
         }
         return result;
     }
-    var result = factorial(10000);
+    var result = factorial(1000);
 }
 benchmark("Iterative Factorial", benchmarkIterativeFactorial);
 
@@ -272,7 +272,7 @@ fun benchmarkClosures() {
     }
     var adder = makeAdder(5);
     var sum = 0;
-    for (var i = 0; i < 1000000; i = i + 1) {
+    for (var i = 0; i < 100000; i = i + 1) {
         sum = adder(i);
     }
 }
@@ -281,7 +281,7 @@ benchmark("Closures", benchmarkClosures);
 // Benchmark complex arithmetic expressions
 fun benchmarkComplexArithmetic() {
     var result = 0;
-    for (var i = 0; i < 1000000; i = i + 1) {
+    for (var i = 0; i < 100000; i = i + 1) {
         result = ((i * 2 + 3) / 4 - 5) * ((i / 3 + 2) * 4 - 1);
     }
 }
@@ -304,7 +304,7 @@ fun benchmarkManyParameters() {
         return a + b + c + d + e + f + g + h;
     }
     var sum = 0;
-    for (var i = 0; i < 1000000; i = i + 1) {
+    for (var i = 0; i < 100000; i = i + 1) {
         sum = manyParams(1, 2, 3, 4, 5, 6, 7, 8);
     }
 }
@@ -316,6 +316,6 @@ fun benchmarkDeepRecursion() {
         if (n == 0) return 0;
         return 1 + recurse(n - 1);
     }
-    var result = recurse(10000);
+    var result = recurse(1000);
 }
 benchmark("Deep Recursion", benchmarkDeepRecursion);
