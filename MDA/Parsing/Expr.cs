@@ -5,188 +5,188 @@
 namespace MDA;
 
 public abstract class Expr {
-  public interface IVisitor <T> {
-    T VisitAssignExpr(Assign expr);
-    T VisitBinaryExpr(Binary expr);
-    T VisitCallExpr(Call expr);
-    T VisitGetExpr(Get expr);
-    T VisitSetExpr(Set expr);
-    T VisitGroupingExpr(Grouping expr);
-    T VisitLiteralExpr(Literal expr);
-    T VisitLogicalExpr(Logical expr);
-    T VisitThisExpr(This expr);
-    T VisitSuperExpr(Super expr);
-    T VisitUnaryExpr(Unary expr);
-    T VisitVariableExpr(Variable expr);
-  }
-
-  public class Assign : Expr {
-    public Assign(Token name, Expr value) {
-      this.Name = name;
-      this.Value = value;
+    public interface IVisitor <T> {
+        T VisitAssignExpr(Assign expr);
+        T VisitBinaryExpr(Binary expr);
+        T VisitCallExpr(Call expr);
+        T VisitGetExpr(Get expr);
+        T VisitSetExpr(Set expr);
+        T VisitGroupingExpr(Grouping expr);
+        T VisitLiteralExpr(Literal expr);
+        T VisitLogicalExpr(Logical expr);
+        T VisitThisExpr(This expr);
+        T VisitSuperExpr(Super expr);
+        T VisitUnaryExpr(Unary expr);
+        T VisitVariableExpr(Variable expr);
     }
 
-     public override T Accept<T>(IVisitor<T> visitor) {
-      return visitor.VisitAssignExpr(this);
+    public class Assign : Expr {
+        public Assign(Token name, Expr value) {
+            this.Name = name;
+            this.Value = value;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitAssignExpr(this);
+        }
+
+        public Token Name { get; set; }
+        public Expr Value { get; set; }
     }
 
-    public Token Name { get; set; }
-    public Expr Value { get; set; }
-  }
+    public class Binary : Expr {
+        public Binary(Expr left, Token op, Expr right) {
+            this.Left = left;
+            this.Op = op;
+            this.Right = right;
+        }
 
-  public class Binary : Expr {
-    public Binary(Expr left, Token op, Expr right) {
-      this.Left = left;
-      this.Op = op;
-      this.Right = right;
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitBinaryExpr(this);
+        }
+
+        public Expr Left { get; set; }
+        public Token Op { get; set; }
+        public Expr Right { get; set; }
     }
 
-     public override T Accept<T>(IVisitor<T> visitor) {
-      return visitor.VisitBinaryExpr(this);
+    public class Call : Expr {
+        public Call(Expr callee, Token paren, List<Expr> arguments) {
+            this.Callee = callee;
+            this.Paren = paren;
+            this.Arguments = arguments;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitCallExpr(this);
+        }
+
+        public Expr Callee { get; set; }
+        public Token Paren { get; set; }
+        public List<Expr> Arguments { get; set; }
     }
 
-    public Expr Left { get; set; }
-    public Token Op { get; set; }
-    public Expr Right { get; set; }
-  }
+    public class Get : Expr {
+        public Get(Expr obj, Token name) {
+            this.Obj = obj;
+            this.Name = name;
+        }
 
-  public class Call : Expr {
-    public Call(Expr callee, Token paren, List<Expr> arguments) {
-      this.Callee = callee;
-      this.Paren = paren;
-      this.Arguments = arguments;
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitGetExpr(this);
+        }
+
+        public Expr Obj { get; set; }
+        public Token Name { get; set; }
     }
 
-     public override T Accept<T>(IVisitor<T> visitor) {
-      return visitor.VisitCallExpr(this);
+    public class Set : Expr {
+        public Set(Expr obj, Token name, Expr value) {
+            this.Obj = obj;
+            this.Name = name;
+            this.Value = value;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitSetExpr(this);
+        }
+
+        public Expr Obj { get; set; }
+        public Token Name { get; set; }
+        public Expr Value { get; set; }
     }
 
-    public Expr Callee { get; set; }
-    public Token Paren { get; set; }
-    public List<Expr> Arguments { get; set; }
-  }
+    public class Grouping : Expr {
+        public Grouping(Expr expr) {
+            this.Expr = expr;
+        }
 
-  public class Get : Expr {
-    public Get(Expr obj, Token name) {
-      this.Obj = obj;
-      this.Name = name;
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitGroupingExpr(this);
+        }
+
+        public Expr Expr { get; set; }
     }
 
-     public override T Accept<T>(IVisitor<T> visitor) {
-      return visitor.VisitGetExpr(this);
+    public class Literal : Expr {
+        public Literal(object value) {
+            this.Value = value;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitLiteralExpr(this);
+        }
+
+        public object Value { get; set; }
     }
 
-    public Expr Obj { get; set; }
-    public Token Name { get; set; }
-  }
+    public class Logical : Expr {
+        public Logical(Expr left, Token op, Expr right) {
+            this.Left = left;
+            this.Op = op;
+            this.Right = right;
+        }
 
-  public class Set : Expr {
-    public Set(Expr obj, Token name, Expr value) {
-      this.Obj = obj;
-      this.Name = name;
-      this.Value = value;
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitLogicalExpr(this);
+        }
+
+        public Expr Left { get; set; }
+        public Token Op { get; set; }
+        public Expr Right { get; set; }
     }
 
-     public override T Accept<T>(IVisitor<T> visitor) {
-      return visitor.VisitSetExpr(this);
+    public class This : Expr {
+        public This(Token keyword) {
+            this.Keyword = keyword;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitThisExpr(this);
+        }
+
+        public Token Keyword { get; set; }
     }
 
-    public Expr Obj { get; set; }
-    public Token Name { get; set; }
-    public Expr Value { get; set; }
-  }
+    public class Super : Expr {
+        public Super(Token keyword, Token method) {
+            this.Keyword = keyword;
+            this.Method = method;
+        }
 
-  public class Grouping : Expr {
-    public Grouping(Expr expr) {
-      this.Expr = expr;
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitSuperExpr(this);
+        }
+
+        public Token Keyword { get; set; }
+        public Token Method { get; set; }
     }
 
-     public override T Accept<T>(IVisitor<T> visitor) {
-      return visitor.VisitGroupingExpr(this);
+    public class Unary : Expr {
+        public Unary(Token op, Expr right) {
+            this.Op = op;
+            this.Right = right;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitUnaryExpr(this);
+        }
+
+        public Token Op { get; set; }
+        public Expr Right { get; set; }
     }
 
-    public Expr Expr { get; set; }
-  }
+    public class Variable : Expr {
+        public Variable(Token name) {
+            this.Name = name;
+        }
 
-  public class Literal : Expr {
-    public Literal(object value) {
-      this.Value = value;
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitVariableExpr(this);
+        }
+
+        public Token Name { get; set; }
     }
-
-     public override T Accept<T>(IVisitor<T> visitor) {
-      return visitor.VisitLiteralExpr(this);
-    }
-
-    public object Value { get; set; }
-  }
-
-  public class Logical : Expr {
-    public Logical(Expr left, Token op, Expr right) {
-      this.Left = left;
-      this.Op = op;
-      this.Right = right;
-    }
-
-     public override T Accept<T>(IVisitor<T> visitor) {
-      return visitor.VisitLogicalExpr(this);
-    }
-
-    public Expr Left { get; set; }
-    public Token Op { get; set; }
-    public Expr Right { get; set; }
-  }
-
-  public class This : Expr {
-    public This(Token keyword) {
-      this.Keyword = keyword;
-    }
-
-     public override T Accept<T>(IVisitor<T> visitor) {
-      return visitor.VisitThisExpr(this);
-    }
-
-    public Token Keyword { get; set; }
-  }
-
-  public class Super : Expr {
-    public Super(Token keyword, Token method) {
-      this.Keyword = keyword;
-      this.Method = method;
-    }
-
-     public override T Accept<T>(IVisitor<T> visitor) {
-      return visitor.VisitSuperExpr(this);
-    }
-
-    public Token Keyword { get; set; }
-    public Token Method { get; set; }
-  }
-
-  public class Unary : Expr {
-    public Unary(Token op, Expr right) {
-      this.Op = op;
-      this.Right = right;
-    }
-
-     public override T Accept<T>(IVisitor<T> visitor) {
-      return visitor.VisitUnaryExpr(this);
-    }
-
-    public Token Op { get; set; }
-    public Expr Right { get; set; }
-  }
-
-  public class Variable : Expr {
-    public Variable(Token name) {
-      this.Name = name;
-    }
-
-     public override T Accept<T>(IVisitor<T> visitor) {
-      return visitor.VisitVariableExpr(this);
-    }
-
-    public Token Name { get; set; }
-  }
 
 
   public abstract T Accept<T>(IVisitor<T> visitor);

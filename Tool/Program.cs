@@ -35,8 +35,10 @@ public class GenerateAst
             "If          : Expr condition, Stmt thenBranch, Stmt? elseBranch",
             "Print       : Expr expr",
             "Return      : Token keyword, Expr? value",
+            "Break       : Token keyword",
+            "Continue    : Token keyword",
             "Var         : Token name, Expr? initializer",
-            "While       : Expr condition, Stmt body"
+            "While       : Expr condition, Stmt body, Expr? increment"
         });
     }
 
@@ -74,30 +76,30 @@ public class GenerateAst
         }
     }
 
-    private static void DefineType(StreamWriter writer, string baseName, string className, string fieldList)
+    private static void DefineType(StreamWriter writer, string baseName, string className, string? fieldList)
     {
-        writer.WriteLine("  public class " + className + " : " + baseName +  " {");
+ 
+        writer.WriteLine("    public class " + className + " : " + baseName +  " {");
         
         // Constructor
-        writer.WriteLine("    public " + className + "(" + fieldList + ") {");
+        writer.WriteLine("        public " + className + "(" + (fieldList ?? "") + ") {");
         
         // Store parameters in fields.
-        string[] fields = fieldList.Split(',');
+        string[] fields = fieldList != "" ? fieldList?.Split(',') : new string[]{};
         
         foreach (var field in fields)
         {
             string name = field.Trim().Split(" ")[1];
-            writer.WriteLine("      this." + GetCsConventionalFieldName(name) + " = " + name + ";");
+            writer.WriteLine("            this." + GetCsConventionalFieldName(name) + " = " + name + ";");
         }
         
-        writer.WriteLine("    }");
+        writer.WriteLine("        }");
         
         // Visitor pattern.
         writer.WriteLine();
-        // writer.WriteLine("  @oOverride");
-        writer.WriteLine("     public override T Accept<T>(IVisitor<T> visitor) {");
-        writer.WriteLine("      return visitor.Visit" + className + baseName + "(this);");
-        writer.WriteLine("    }");
+        writer.WriteLine("        public override T Accept<T>(IVisitor<T> visitor) {");
+        writer.WriteLine("            return visitor.Visit" + className + baseName + "(this);");
+        writer.WriteLine("        }");
         
         // Fields.
         writer.WriteLine();
@@ -105,24 +107,24 @@ public class GenerateAst
         {
             string type = field.Trim().Split(" ")[0].Trim();
             string name = field.Trim().Split(" ")[1].Trim();
-            writer.WriteLine("    public " + type + " " + GetCsConventionalFieldName(name) + " { get; set; }");
+            writer.WriteLine("        public " + type + " " + GetCsConventionalFieldName(name) + " { get; set; }");
         }
         
-        writer.WriteLine("  }");
+        writer.WriteLine("    }");
         writer.WriteLine();
     }
 
     private static void DefineVisitor(StreamWriter writer, string baseName, List<string> types)
     {
-        writer.WriteLine("  public interface IVisitor <T> {");
+        writer.WriteLine("    public interface IVisitor <T> {");
 
         foreach (string type in types)
         {
             string typeName = type.Split(":")[0].Trim();
-            writer.WriteLine("    T Visit" + typeName + baseName + "(" + typeName + " " + baseName.ToLower() + ");");
+            writer.WriteLine("        T Visit" + typeName + baseName + "(" + typeName + " " + baseName.ToLower() + ");");
         }
         
-        writer.WriteLine("  }");
+        writer.WriteLine("    }");
         writer.WriteLine();
     }
 }

@@ -67,11 +67,11 @@ class Mda
         Parser parser = new Parser(tokens);
         List<Stmt> statements = parser.Parse();
         
-        Optimizer optimizer = new Optimizer(statements);
-        statements = optimizer.Optimize();
-
         // Stop if there was a syntax error.
         if (_hadError) return;
+        
+        Optimizer optimizer = new Optimizer(statements);
+        statements = optimizer.Optimize();
         
         AstPrinter printer = new AstPrinter();
         foreach (var statement in statements)

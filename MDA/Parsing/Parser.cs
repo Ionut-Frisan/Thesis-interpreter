@@ -72,6 +72,8 @@ public class Parser
         if (Match(TokenType.IF)) return IfStatement();
         if (Match(TokenType.PRINT)) return PrintStatement();
         if (Match(TokenType.RETURN)) return ReturnStatement();
+        if (Match(TokenType.CONTINUE)) return ContinueStatement();
+        if (Match(TokenType.BREAK)) return BreakStatement();
         if (Match(TokenType.WHILE)) return WhileStatement();
         if (Match(TokenType.LEFT_BRACE)) return new Stmt.Block(Block());
 
@@ -127,9 +129,9 @@ public class Parser
                 new Stmt.Expression(increment)
             });
         }
-
+        
         if (condition == null) condition = new Expr.Literal(true);
-        body = new Stmt.While(condition, body);
+        body = new Stmt.While(condition, body, increment);
 
         if (initializer != null)
         {
@@ -160,7 +162,7 @@ public class Parser
         Consume(TokenType.RIGHT_PAREN, "Expected ')' after 'while'.");
         Stmt body = Statement();
 
-        return new Stmt.While(condition, body);
+        return new Stmt.While(condition, body, null);
     }
 
     private Stmt IfStatement()
@@ -197,6 +199,18 @@ public class Parser
 
         Consume(TokenType.SEMICOLON, "Expected ';' after return value.");
         return new Stmt.Return(keyword, value);
+    }
+
+    private Stmt ContinueStatement()
+    {
+        Consume(TokenType.SEMICOLON, "Expect ';' after continue.");
+        return new Stmt.Continue(Previous());
+    }
+
+    private Stmt BreakStatement()
+    {
+        Consume(TokenType.SEMICOLON, "Expect ';' after break.");
+        return new Stmt.Break(Previous());
     }
 
     private Stmt ExpressionStatement()

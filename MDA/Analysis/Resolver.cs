@@ -5,6 +5,7 @@ public class Resolver : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     private readonly Interpreter _interpreter;
     private readonly Stack<IDictionary<string, bool>> _scopes = new Stack<IDictionary<string, bool>>();
     private FunctionType _currentFunction = FunctionType.NONE;
+    private int _loopDepth = 0;
 
     private enum ClassType
     {
@@ -112,11 +113,33 @@ public class Resolver : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         }
         return null;
     }
+
+    public object? VisitBreakStmt(Stmt.Break stmt)
+    {
+        if (_loopDepth == 0)
+        {
+            Mda.Error(stmt.Keyword, "Cannot use 'break' outside of a loop.");
+        }
+        return null;
+    }    
+    
+    public object? VisitContinueStmt(Stmt.Continue stmt)
+    {
+        if (_loopDepth == 0)
+        {
+            Mda.Error(stmt.Keyword, "Cannot use 'continue' outside of a loop.");
+        }
+        return null;
+    }
     
     public object? VisitWhileStmt(Stmt.While stmt)
     {
         Resolve(stmt.Condition);
+        
+        _loopDepth++;
         Resolve(stmt.Body);
+        _loopDepth--;
+        
         return null;
     }
     

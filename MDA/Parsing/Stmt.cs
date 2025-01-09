@@ -5,143 +5,171 @@
 namespace MDA;
 
 public abstract class Stmt {
-  public interface IVisitor <T> {
-    T VisitBlockStmt(Block stmt);
-    T VisitClassStmt(Class stmt);
-    T VisitExpressionStmt(Expression stmt);
-    T VisitFunctionStmt(Function stmt);
-    T VisitIfStmt(If stmt);
-    T VisitPrintStmt(Print stmt);
-    T VisitReturnStmt(Return stmt);
-    T VisitVarStmt(Var stmt);
-    T VisitWhileStmt(While stmt);
-  }
-
-  public class Block : Stmt {
-    public Block(List<Stmt> statements) {
-      this.Statements = statements;
+    public interface IVisitor <T> {
+        T VisitBlockStmt(Block stmt);
+        T VisitClassStmt(Class stmt);
+        T VisitExpressionStmt(Expression stmt);
+        T VisitFunctionStmt(Function stmt);
+        T VisitIfStmt(If stmt);
+        T VisitPrintStmt(Print stmt);
+        T VisitReturnStmt(Return stmt);
+        T VisitBreakStmt(Break stmt);
+        T VisitContinueStmt(Continue stmt);
+        T VisitVarStmt(Var stmt);
+        T VisitWhileStmt(While stmt);
     }
 
-     public override T Accept<T>(IVisitor<T> visitor) {
-      return visitor.VisitBlockStmt(this);
+    public class Block : Stmt {
+        public Block(List<Stmt> statements) {
+            this.Statements = statements;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitBlockStmt(this);
+        }
+
+        public List<Stmt> Statements { get; set; }
     }
 
-    public List<Stmt> Statements { get; set; }
-  }
+    public class Class : Stmt {
+        public Class(Token name, Expr.Variable? superclass, List<Stmt.Function> methods) {
+            this.Name = name;
+            this.Superclass = superclass;
+            this.Methods = methods;
+        }
 
-  public class Class : Stmt {
-    public Class(Token name, Expr.Variable? superclass, List<Stmt.Function> methods) {
-      this.Name = name;
-      this.Superclass = superclass;
-      this.Methods = methods;
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitClassStmt(this);
+        }
+
+        public Token Name { get; set; }
+        public Expr.Variable? Superclass { get; set; }
+        public List<Stmt.Function> Methods { get; set; }
     }
 
-     public override T Accept<T>(IVisitor<T> visitor) {
-      return visitor.VisitClassStmt(this);
+    public class Expression : Stmt {
+        public Expression(Expr expr) {
+            this.Expr = expr;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitExpressionStmt(this);
+        }
+
+        public Expr Expr { get; set; }
     }
 
-    public Token Name { get; set; }
-    public Expr.Variable? Superclass { get; set; }
-    public List<Stmt.Function> Methods { get; set; }
-  }
+    public class Function : Stmt {
+        public Function(Token name, List<Token> parameters, List<Stmt> body) {
+            this.Name = name;
+            this.Parameters = parameters;
+            this.Body = body;
+        }
 
-  public class Expression : Stmt {
-    public Expression(Expr expr) {
-      this.Expr = expr;
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitFunctionStmt(this);
+        }
+
+        public Token Name { get; set; }
+        public List<Token> Parameters { get; set; }
+        public List<Stmt> Body { get; set; }
     }
 
-     public override T Accept<T>(IVisitor<T> visitor) {
-      return visitor.VisitExpressionStmt(this);
+    public class If : Stmt {
+        public If(Expr condition, Stmt thenBranch, Stmt? elseBranch) {
+            this.Condition = condition;
+            this.ThenBranch = thenBranch;
+            this.ElseBranch = elseBranch;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitIfStmt(this);
+        }
+
+        public Expr Condition { get; set; }
+        public Stmt ThenBranch { get; set; }
+        public Stmt? ElseBranch { get; set; }
     }
 
-    public Expr Expr { get; set; }
-  }
+    public class Print : Stmt {
+        public Print(Expr expr) {
+            this.Expr = expr;
+        }
 
-  public class Function : Stmt {
-    public Function(Token name, List<Token> parameters, List<Stmt> body) {
-      this.Name = name;
-      this.Parameters = parameters;
-      this.Body = body;
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitPrintStmt(this);
+        }
+
+        public Expr Expr { get; set; }
     }
 
-     public override T Accept<T>(IVisitor<T> visitor) {
-      return visitor.VisitFunctionStmt(this);
+    public class Return : Stmt {
+        public Return(Token keyword, Expr? value) {
+            this.Keyword = keyword;
+            this.Value = value;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitReturnStmt(this);
+        }
+
+        public Token Keyword { get; set; }
+        public Expr? Value { get; set; }
     }
 
-    public Token Name { get; set; }
-    public List<Token> Parameters { get; set; }
-    public List<Stmt> Body { get; set; }
-  }
+    public class Break : Stmt {
+        public Break(Token keyword) {
+            this.Keyword = keyword;
+        }
 
-  public class If : Stmt {
-    public If(Expr condition, Stmt thenBranch, Stmt? elseBranch) {
-      this.Condition = condition;
-      this.ThenBranch = thenBranch;
-      this.ElseBranch = elseBranch;
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitBreakStmt(this);
+        }
+
+        public Token Keyword { get; set; }
     }
 
-     public override T Accept<T>(IVisitor<T> visitor) {
-      return visitor.VisitIfStmt(this);
+    public class Continue : Stmt {
+        public Continue(Token keyword) {
+            this.Keyword = keyword;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitContinueStmt(this);
+        }
+
+        public Token Keyword { get; set; }
     }
 
-    public Expr Condition { get; set; }
-    public Stmt ThenBranch { get; set; }
-    public Stmt? ElseBranch { get; set; }
-  }
+    public class Var : Stmt {
+        public Var(Token name, Expr? initializer) {
+            this.Name = name;
+            this.Initializer = initializer;
+        }
 
-  public class Print : Stmt {
-    public Print(Expr expr) {
-      this.Expr = expr;
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitVarStmt(this);
+        }
+
+        public Token Name { get; set; }
+        public Expr? Initializer { get; set; }
     }
 
-     public override T Accept<T>(IVisitor<T> visitor) {
-      return visitor.VisitPrintStmt(this);
+    public class While : Stmt {
+        public While(Expr condition, Stmt body, Expr? increment) {
+            this.Condition = condition;
+            this.Body = body;
+            this.Increment = increment;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitWhileStmt(this);
+        }
+
+        public Expr Condition { get; set; }
+        public Stmt Body { get; set; }
+        public Expr? Increment { get; set; }
     }
-
-    public Expr Expr { get; set; }
-  }
-
-  public class Return : Stmt {
-    public Return(Token keyword, Expr? value) {
-      this.Keyword = keyword;
-      this.Value = value;
-    }
-
-     public override T Accept<T>(IVisitor<T> visitor) {
-      return visitor.VisitReturnStmt(this);
-    }
-
-    public Token Keyword { get; set; }
-    public Expr? Value { get; set; }
-  }
-
-  public class Var : Stmt {
-    public Var(Token name, Expr? initializer) {
-      this.Name = name;
-      this.Initializer = initializer;
-    }
-
-     public override T Accept<T>(IVisitor<T> visitor) {
-      return visitor.VisitVarStmt(this);
-    }
-
-    public Token Name { get; set; }
-    public Expr? Initializer { get; set; }
-  }
-
-  public class While : Stmt {
-    public While(Expr condition, Stmt body) {
-      this.Condition = condition;
-      this.Body = body;
-    }
-
-     public override T Accept<T>(IVisitor<T> visitor) {
-      return visitor.VisitWhileStmt(this);
-    }
-
-    public Expr Condition { get; set; }
-    public Stmt Body { get; set; }
-  }
 
 
   public abstract T Accept<T>(IVisitor<T> visitor);

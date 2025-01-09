@@ -199,6 +199,16 @@ public class Optimizer : Expr.IVisitor<Expr>, Stmt.IVisitor<Stmt>
         return new Stmt.Return(stmt.Keyword, value);
     }
 
+    public Stmt VisitBreakStmt(Stmt.Break stmt)
+    {
+        return stmt;
+    }
+    
+    public Stmt VisitContinueStmt(Stmt.Continue stmt)
+    {
+        return stmt;
+    }
+
     public Stmt VisitWhileStmt(Stmt.While stmt)
     {
         Expr condition = Optimize(stmt.Condition);
@@ -210,7 +220,7 @@ public class Optimizer : Expr.IVisitor<Expr>, Stmt.IVisitor<Stmt>
             block.Statements = block.Statements.Select(Optimize).ToList();
         }
 
-        return new Stmt.While(condition, body);
+        return new Stmt.While(condition, body, stmt.Increment);
     }
 
 

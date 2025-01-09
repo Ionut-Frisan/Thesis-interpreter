@@ -39,7 +39,7 @@ operator       → "==" | "!=" | "<" | "<=" | ">" | ">="
                 | "+"  | "-"  | "*" | "/" ;
 ```
 
-## TODO: Not sure what this is https://craftinginterpreters.com/parsing-expressions.html
+## Grammar 2
 
 ```
 program        → declaration* EOF ;
@@ -66,9 +66,15 @@ statement      → exprStmt
                | printStmt
                | returnStmt
                | whileStmt
+               | breakStmt
+               | continueStmt
                | block ;
                
 returnStmt     -> "return" expression? ";" ;
+
+breakStmt      → "break" ";" ;
+
+continueStmt   → "continue" ";" ;
 
 forStmt        → "for" "(" ( varDecl | exprStmt | ";" )
                  expression? ";"
@@ -87,7 +93,12 @@ printStmt      → "print" expression ";" ;
 
 expression     → assignment ;
 
-assignment     → ( call "." )? IDENTIFIER "=" assignment
+assignment     → ( call "." )? IDENTIFIER ( "=" assignment
+                                          | "+=" assignment
+                                          | "-=" assignment
+                                          | "*=" assignment
+                                          | "/=" assignment
+                                          | "%=" assignment )
                | logic_or ;
                
 logic_or       → logic_and ( "or" logic_and )* ;
@@ -102,7 +113,7 @@ term           → factor ( ( "-" | "+" ) factor )* ;
 
 factor         → unary ( ( "/" | "*" ) unary )* ;
 
-unary          → ( "!" | "-" ) unary | call ;
+unary          → ( "!" | "-" | "++" | "--" ) unary | call ;
 
 call           → primary ( "(" arguments? ")" | "." IDENTIFIER )* ;
 

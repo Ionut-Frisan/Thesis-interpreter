@@ -55,6 +55,8 @@ public enum TokenType
     TRUE,
     VAR,
     WHILE,
+    CONTINUE,
+    BREAK,
 
     // End of file
     EOF

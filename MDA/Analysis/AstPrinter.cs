@@ -131,6 +131,16 @@ public class AstPrinter : Expr.IVisitor<string>, Stmt.IVisitor<string>
         return builder.ToString();
     }
 
+    public string VisitBreakStmt(Stmt.Break stmt)
+    {
+        return "break";
+    }
+    
+    public string VisitContinueStmt(Stmt.Continue stmt)
+    {
+        return "continue";
+    }
+
     public string VisitVarStmt(Stmt.Var stmt)
     {
         StringBuilder builder = new StringBuilder();

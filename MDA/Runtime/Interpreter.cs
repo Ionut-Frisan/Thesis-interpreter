@@ -6,6 +6,9 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     private readonly Environment _globals = new Environment();
     private Environment _environment;
     private readonly IDictionary<Expr, int> _locals = new Dictionary<Expr, int>();
+    
+    private class BreakException : Exception {}
+    private class ContinueException : Exception {}
 
     public Interpreter()
     {
@@ -259,11 +262,32 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
 
     public object? VisitWhileStmt(Stmt.While stmt)
     {
-        while (IsTruthy(Evaluate(stmt.Condition)))
+        try
         {
-            Execute(stmt.Body);
-        }
+            while (IsTruthy(Evaluate(stmt.Condition)))
+            {
+                try
+                {
+                    Execute(stmt.Body);
+                }
+                catch (ContinueException e)
+                {
+                    // continue loop
+                    if (stmt.Increment != null && stmt.Body is Stmt.Block block && block.Statements.Last() is Stmt.Expression incrementStmt)
+                    {
+                        // we add the increment statement to a new block so it matches the depth from the resolver
+                        // need to properly resolve the increment statement individually
+                        Execute(new Stmt.Block(new List<Stmt>{ incrementStmt }));
+                    }
+                }
+            }
 
+        }
+        catch (BreakException e)
+        {
+            // break out of loop
+        }
+        
         return null;
     }
 
@@ -273,6 +297,15 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         if (stmt.Value != null) value = Evaluate(stmt.Value);
 
         throw new Return(value);
+    }
+
+    public object? VisitBreakStmt(Stmt.Break stmt)
+    {
+        throw new BreakException();
+    }
+    
+    public object? VisitContinueStmt(Stmt.Continue stmt) {
+        throw new ContinueException();
     }
 
     public object? VisitBlockStmt(Stmt.Block stmt)
@@ -358,8 +391,6 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     private void CheckNumberOperands(Token op, object left, object right)
     {
         if (left is double && right is double) return;
-        Console.WriteLine(left.GetType());
-        Console.WriteLine(right.GetType());
         throw new RuntimeError(op, "Operands must be numbers");
     }
 
