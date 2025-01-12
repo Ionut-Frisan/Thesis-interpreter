@@ -194,6 +194,29 @@ public class AstPrinter : Expr.IVisitor<string>, Stmt.IVisitor<string>
         builder.Append(")");
         return builder.ToString();
     }
+    
+    public string VisitListExpr(Expr.List expr)
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.Append("[");
+        foreach (var element in expr.Elements)
+        {
+            if (element != expr.Elements[0]) builder.Append(" ");
+            builder.Append(element.Accept(this));
+        }
+        builder.Append("]");
+        return builder.ToString();
+    }
+    
+    public string VisitListAccessExpr(Expr.ListAccess expr)
+    {
+        return Parenthesize("[]", expr.List, expr.Index);
+    }
+    
+    public string VisitListAssignExpr(Expr.ListAssign expr)
+    {
+        return Parenthesize("[]=", expr.List, expr.Index, expr.Value);
+    }
 
     private string Parenthesize(string name, params object[] parts)
     {

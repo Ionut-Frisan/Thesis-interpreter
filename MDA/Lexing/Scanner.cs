@@ -77,6 +77,14 @@ public class Scanner
             AddToken(TokenType.RIGHT_BRACE);
             _column++;
             break;
+        case '[':
+            AddToken(TokenType.LEFT_BRACKET);
+            _column++;
+            break;
+        case ']':
+            AddToken(TokenType.RIGHT_BRACKET);
+            _column++;
+            break;
         case ',':
             AddToken(TokenType.COMMA);
             _column++;

@@ -574,6 +574,10 @@ public class Parser
             {
                 expr = FinishCall(expr);
             }
+            else if (Match(TokenType.LEFT_BRACKET))
+            {
+                expr = FinishArrayAccess(expr);
+            }
             else if (Match(TokenType.DOT))
             {
                 Token name = Consume(TokenType.IDENTIFIER, "PS010");
@@ -614,6 +618,21 @@ public class Parser
         return new Expr.Call(callee, paren, arguments);
     }
 
+    public Expr FinishArrayAccess(Expr list)
+    {
+        Token bracket = Previous();
+        Expr index = Expression();
+        Consume(TokenType.RIGHT_BRACKET, "PS038");
+
+        if (Match(TokenType.EQUAL))
+        {
+            Expr value = Expression();
+            return new Expr.ListAssign(list, index, value, bracket);
+        }
+
+        return new Expr.ListAccess(list, index, bracket);
+    }
+    
     /*
      * primary        → NUMBER | STRING | "true" | "false" | "null"
      *                  | "(" expression ")" ;
@@ -651,7 +670,32 @@ public class Parser
             return new Expr.Grouping(expr);
         }
 
+        if (Match(TokenType.LEFT_BRACKET))
+        {
+            return listLiteral();
+        }
+
         throw Error(Peek(), "PS015");
+    }
+    
+    private Expr listLiteral()
+    {
+        List<Expr> elements = new List<Expr>();
+        if (!Check(TokenType.RIGHT_BRACKET))
+        {
+            do
+            {
+                if (elements.Count >= 255)
+                {
+                    Error(Peek(), "PS036");
+                }
+
+                elements.Add(Expression());
+            } while (Match(TokenType.COMMA));
+        }
+            
+        Consume(TokenType.RIGHT_BRACKET, "PS037");
+        return new Expr.List(elements);
     }
 
     /*

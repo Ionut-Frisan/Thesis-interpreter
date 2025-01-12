@@ -271,6 +271,30 @@ public class Resolver : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         return null;
     }
     
+    public object? VisitListExpr(Expr.List expr)
+    {
+        foreach (var element in expr.Elements)
+        {
+            Resolve(element);
+        }
+        return null;
+    }
+    
+    public object? VisitListAccessExpr(Expr.ListAccess expr)
+    {
+        Resolve(expr.List);
+        Resolve(expr.Index);
+        return null;
+    }
+    
+    public object? VisitListAssignExpr(Expr.ListAssign expr)
+    {
+        Resolve(expr.List);
+        Resolve(expr.Index);
+        Resolve(expr.Value);
+        return null;
+    }
+    
     public void Resolve(List<Stmt> statements)
     {
         foreach (var statement in statements)

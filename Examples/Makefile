@@ -1,5 +1,6 @@
 LOGPATH=../Examples/benchmark_results/
-LOGFILE=$(LOGPATH)`date +'%y_%m_%d-%H:%M:%S'`.txt
+LOGFILE=$(shell date +'%y_%m_%d-%H_%M_%S')
+LOGFILE:=$(LOGPATH)$(LOGFILE).txt
 
 run:
 	pwd; \

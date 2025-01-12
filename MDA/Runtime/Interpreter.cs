@@ -39,12 +39,12 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         if (expr.Op.Type == TokenType.OR)
         {
             // true || x -> don't evaluate x as expression is truthy anyway
-            if (IsTruthy(left)) return left;
+            if (Utils.IsTruthy(left)) return left;
         }
         else
         {   
             // false && x -> don't evaluate x as expression is falsy anyway
-            if (IsTruthy(left)) return left;
+            if (Utils.IsTruthy(left)) return left;
         }
         
         return Evaluate(expr.Right);
@@ -101,7 +101,7 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         switch (expr.Op.Type)
         {
             case TokenType.BANG:
-                return !IsTruthy(right);
+                return !Utils.IsTruthy(right);
             case TokenType.MINUS:
                 CheckNumberOperand(expr.Op, right);
                 return -(double)right;
@@ -206,6 +206,21 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     public object VisitGetExpr(Expr.Get expr)
     {
         object obj = Evaluate(expr.Obj);
+        
+        // If object is a MdaList, check for the requested method
+        if (obj is MdaList list)
+        {
+            string propertyName = expr.Name.Lexeme;
+            IMdaCallable? method = list.FindMethod(propertyName);
+            
+            if (method != null)
+            {
+                return method;
+            }
+            
+            throw new RuntimeError(expr.Name, $"Undefined method '{propertyName}' on list.");
+        }
+        
         if (obj is MdaInstance instance)
         {
             return instance.Get(expr.Name);
@@ -216,7 +231,7 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
 
     public object? VisitIfStmt(Stmt.If stmt)
     {
-        if (IsTruthy(Evaluate(stmt.Condition)))
+        if (Utils.IsTruthy(Evaluate(stmt.Condition)))
         {
             Execute(stmt.ThenBranch);
         }
@@ -264,7 +279,7 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     {
         try
         {
-            while (IsTruthy(Evaluate(stmt.Condition)))
+            while (Utils.IsTruthy(Evaluate(stmt.Condition)))
             {
                 try
                 {
@@ -372,6 +387,65 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     {
         return LookupVariable(expr.Name, expr);
     }
+
+    public object VisitListExpr(Expr.List expr)
+    {
+        MdaList list = new MdaList();
+        foreach (var element in expr.Elements)
+        {
+            list.Push(Evaluate(element));
+        }
+
+        return list;
+    }
+
+    public object VisitListAccessExpr(Expr.ListAccess expr)
+    {
+        object list = Evaluate(expr.List);
+        if (!(list is MdaList))
+        {
+            throw new RuntimeError(expr.Bracket, "Only lists have indexes.");
+        }
+        
+        object index = Evaluate(expr.Index);
+        if (!(index is double))
+        {
+            throw new RuntimeError(expr.Bracket, "Index must be a number.");
+        }
+        
+        int idx = (int)(double)index;
+        if ((double)index != idx)
+        {
+            throw new RuntimeError(expr.Bracket, "Index must be an integer.");
+        }
+
+        return ((MdaList)list).Get(idx);
+    }
+
+    public object VisitListAssignExpr(Expr.ListAssign expr)
+    {
+        object list = Evaluate(expr.List);
+        if (!(list is MdaList))
+        {
+            throw new RuntimeError(expr.Bracket, "Only lists have indexes.");
+        }
+        
+        object index = Evaluate(expr.Index);
+        if (!(index is double))
+        {
+            throw new RuntimeError(expr.Bracket, "Index must be a number.");
+        }
+        
+        int idx = (int)(double)index;
+        if ((double)index != idx)
+        {
+            throw new RuntimeError(expr.Bracket, "Index must be an integer.");
+        }
+        
+        object value = Evaluate(expr.Value);
+        ((MdaList)list).Set(idx, value);
+        return value;
+    }
     
     private object LookupVariable(Token name, Expr expr)
     {
@@ -392,15 +466,6 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     {
         if (left is double && right is double) return;
         throw new RuntimeError(op, "Operands must be numbers");
-    }
-
-    private bool IsTruthy(object? value)
-    {
-        if (value == null) return false;
-        if (value is bool) return (bool)value;
-        if (value is double) return (double)value != 0;
-        if (value is string) return (string)value != "";
-        return true;
     }
 
     private bool IsEqual(object? left, object? right)

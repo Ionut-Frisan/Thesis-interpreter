@@ -246,6 +246,27 @@ public class Optimizer : Expr.IVisitor<Expr>, Stmt.IVisitor<Stmt>
         return new Stmt.Var(stmt.Name, initializer);
     }
 
+    public Expr VisitListExpr(Expr.List expr)
+    {
+        List<Expr> elements = expr.Elements.Select(Optimize).ToList();
+        return new Expr.List(elements);
+    }
+    
+    public Expr VisitListAccessExpr(Expr.ListAccess expr)
+    {
+        Expr list = Optimize(expr.List);
+        Expr index = Optimize(expr.Index);
+        return new Expr.ListAccess(list, index, expr.Bracket);
+    }
+    
+    public Expr VisitListAssignExpr(Expr.ListAssign expr)
+    {
+        Expr list = Optimize(expr.List);
+        Expr index = Optimize(expr.Index);
+        Expr value = Optimize(expr.Value);
+        return new Expr.ListAssign(list, index, value, expr.Bracket);
+    }
+    
     private Expr Optimize(Expr expr)
     {
         return expr.Accept(this);

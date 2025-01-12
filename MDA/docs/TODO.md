@@ -7,7 +7,7 @@
 - [x] Break / continue in loops
 - [ ] Better error reporting
   - [x] Add column to the error message 
-  - [ ] Better messages
+  - [x] Better messages
   - [ ] Print underlined code snippet with error
 - [ ] Import/packages
 - [ ] Try/catch/finally and Error class

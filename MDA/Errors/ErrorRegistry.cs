@@ -339,6 +339,33 @@ public class ErrorRegistry
                 "Opening parenthesis is expected after :kind: name."
             )
         },
+        {
+            "PS036", new Error(
+                "PS036",
+                "Cannot have more than 255 elements in a list.",
+                ErrorCategory.PARSER,
+                ErrorLevel.ERROR,
+                "The maximum number of elements a list can have is 255."
+            )
+        },
+        {
+            "PS037", new Error(
+                "PS037",
+                "Expected ']' after list elements.",
+                ErrorCategory.PARSER,
+                ErrorLevel.ERROR,
+                "Closing bracket is expected after list elements."
+            )
+        },
+        {
+            "PS038", new Error(
+                "PS038",
+                "Expected ']' after list index.",
+                ErrorCategory.PARSER,
+                ErrorLevel.ERROR,
+                "Closing bracket is expected after list index."
+            )
+        },
         
         // Resolver errors
         {

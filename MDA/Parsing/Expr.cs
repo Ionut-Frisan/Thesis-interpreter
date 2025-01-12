@@ -18,6 +18,9 @@ public abstract class Expr {
         T VisitSuperExpr(Super expr);
         T VisitUnaryExpr(Unary expr);
         T VisitVariableExpr(Variable expr);
+        T VisitListExpr(List expr);
+        T VisitListAccessExpr(ListAccess expr);
+        T VisitListAssignExpr(ListAssign expr);
     }
 
     public class Assign : Expr {
@@ -186,6 +189,52 @@ public abstract class Expr {
         }
 
         public Token Name { get; set; }
+    }
+
+    public class List : Expr {
+        public List(List<Expr> elements) {
+            this.Elements = elements;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitListExpr(this);
+        }
+
+        public List<Expr> Elements { get; set; }
+    }
+
+    public class ListAccess : Expr {
+        public ListAccess(Expr list, Expr index, Token bracket) {
+            this.List = list;
+            this.Index = index;
+            this.Bracket = bracket;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitListAccessExpr(this);
+        }
+
+        public Expr List { get; set; }
+        public Expr Index { get; set; }
+        public Token Bracket { get; set; }
+    }
+
+    public class ListAssign : Expr {
+        public ListAssign(Expr list, Expr index, Expr value, Token bracket) {
+            this.List = list;
+            this.Index = index;
+            this.Value = value;
+            this.Bracket = bracket;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitListAssignExpr(this);
+        }
+
+        public Expr List { get; set; }
+        public Expr Index { get; set; }
+        public Expr Value { get; set; }
+        public Token Bracket { get; set; }
     }
 
 

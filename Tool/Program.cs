@@ -13,18 +13,21 @@ public class GenerateAst
         String outputDir = args[0];
         
         DefineAst(outputDir, "Expr", new List<string>{
-            "Assign   : Token name, Expr value",
-            "Binary   : Expr left, Token op, Expr right",
-            "Call     : Expr callee, Token paren, List<Expr> arguments",
-            "Get      : Expr obj, Token name",
-            "Set      : Expr obj, Token name, Expr value",
-            "Grouping : Expr expr",
-            "Literal  : object value",
-            "Logical  : Expr left, Token op, Expr right",
-            "This     : Token keyword",
-            "Super    : Token keyword, Token method",
-            "Unary    : Token op, Expr right",
-            "Variable : Token name"
+            "Assign         : Token name, Expr value",
+            "Binary         : Expr left, Token op, Expr right",
+            "Call           : Expr callee, Token paren, List<Expr> arguments",
+            "Get            : Expr obj, Token name",
+            "Set            : Expr obj, Token name, Expr value",
+            "Grouping       : Expr expr",
+            "Literal        : object value",
+            "Logical        : Expr left, Token op, Expr right",
+            "This           : Token keyword",
+            "Super          : Token keyword, Token method",
+            "Unary          : Token op, Expr right",
+            "Variable       : Token name",
+            "List           : List<Expr> elements",
+            "ListAccess     : Expr list, Expr index, Token bracket",
+            "ListAssign     : Expr list, Expr index, Expr value, Token bracket"
         });
 
         DefineAst(outputDir, "Stmt", new List<string>{
