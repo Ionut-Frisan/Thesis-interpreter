@@ -9,4 +9,9 @@
         <InvariantGlobalization>true</InvariantGlobalization>
     </PropertyGroup>
 
+    <ItemGroup>
+      <None Remove="grammar.md" />
+      <None Remove="TODO.md" />
+    </ItemGroup>
+
 </Project>

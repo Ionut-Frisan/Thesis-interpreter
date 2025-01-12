@@ -1,3 +1,5 @@
+using MDA.Errors;
+
 namespace MDA;
 
 public class Resolver : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
@@ -39,7 +41,7 @@ public class Resolver : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
 
         if (stmt.Superclass != null && stmt.Name.Lexeme.Equals(stmt.Superclass.Name.Lexeme))
         {
-            Mda.Error(stmt.Superclass.Name, "A class cannot inherit from itself.");
+            Mda.Error(stmt.Superclass.Name, ErrorResolver.Resolve("RS001"));
         }
 
         if (stmt.Superclass != null)
@@ -100,14 +102,14 @@ public class Resolver : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     {
         if (_currentFunction == FunctionType.NONE)
         {
-            Mda.Error(stmt.Keyword, "Cannot return from top-level code.");
+            Mda.Error(stmt.Keyword, ErrorResolver.Resolve("RS002"));
         }
         
         if (stmt.Value != null)
         {
             if (_currentFunction == FunctionType.INITIALIZER)
             {
-                Mda.Error(stmt.Keyword, "Cannot return a value from an initializer.");
+                Mda.Error(stmt.Keyword, ErrorResolver.Resolve("RS003"));
             }
             Resolve(stmt.Value);
         }
@@ -118,7 +120,7 @@ public class Resolver : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     {
         if (_loopDepth == 0)
         {
-            Mda.Error(stmt.Keyword, "Cannot use 'break' outside of a loop.");
+            Mda.Error(stmt.Keyword, ErrorResolver.Resolve("RS004"));
         }
         return null;
     }    
@@ -127,7 +129,7 @@ public class Resolver : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     {
         if (_loopDepth == 0)
         {
-            Mda.Error(stmt.Keyword, "Cannot use 'continue' outside of a loop.");
+            Mda.Error(stmt.Keyword, ErrorResolver.Resolve("RS005"));
         }
         return null;
     }
@@ -225,11 +227,11 @@ public class Resolver : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     {
         if (_currentClass == ClassType.NONE)
         {
-            Mda.Error(expr.Keyword, "Cannot use 'super' outside of a class.");
+            Mda.Error(expr.Keyword, ErrorResolver.Resolve("RS006"));
         }
         else if (_currentClass != ClassType.SUBCLASS)
         {
-            Mda.Error(expr.Keyword, "Cannot use 'super' in a class with no superclass.");
+            Mda.Error(expr.Keyword, ErrorResolver.Resolve("RS007"));
         }
 
         ResolveLocal(expr, expr.Keyword);
@@ -240,7 +242,7 @@ public class Resolver : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     {
         if (_currentClass == ClassType.NONE)
         {
-            Mda.Error(expr.Keyword, "Cannot use 'this' outside of a class.");
+            Mda.Error(expr.Keyword, ErrorResolver.Resolve("RS008"));
             return null;
         }
         
@@ -261,7 +263,7 @@ public class Resolver : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
             IDictionary<string, bool> scope = _scopes.Peek();
             if (scope.ContainsKey(expr.Name.Lexeme) && scope[expr.Name.Lexeme] == false)
             {
-                Mda.Error(expr.Name, "Cannot read local variable in its own initializer.");
+                Mda.Error(expr.Name, ErrorResolver.Resolve("RS009"));
             }
         }
         
@@ -322,7 +324,7 @@ public class Resolver : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         IDictionary<string, bool> scope = _scopes.Peek();
         if (scope.ContainsKey(name.Lexeme))
         {
-            Mda.Error(name, $"Variable '{name.Lexeme}' already declared in this scope.");
+            Mda.Error(name, ErrorResolver.Resolve("RS010", new Dictionary<string, string> { { "name", name.Lexeme } }));
         }
         
         scope[name.Lexeme] = false;

@@ -1,3 +1,5 @@
+using MDA.Errors;
+
 namespace MDA;
 
 public class Parser
@@ -25,6 +27,12 @@ public class Parser
         return statements;
     }
 
+    /*
+     * declaration    → classDecl
+     *                  | funDecl
+     *                  | varDecl
+     *                  | statement ;
+     */
     private Stmt? Declaration()
     {
         try
@@ -42,18 +50,22 @@ public class Parser
         }
     }
 
+    /*
+     * classDeclaration → "class" IDENTIFIER ( "<" IDENTIFIER )?
+     *                    "{" function* "}" ;
+     */
     private Stmt ClassDeclaration()
     {
-        Token name = Consume(TokenType.IDENTIFIER, "Expect class name.");
+        Token name = Consume(TokenType.IDENTIFIER, "PS016");
 
         Expr.Variable superclass = null;
         if (Match(TokenType.LESS))
         {
-            Consume(TokenType.IDENTIFIER, "Expect superclass name.");
+            Consume(TokenType.IDENTIFIER, "PS017");
             superclass = new Expr.Variable(Previous());
         }
 
-        Consume(TokenType.LEFT_BRACE, "Expect '{' before class body.");
+        Consume(TokenType.LEFT_BRACE, "PS018");
 
         List<Stmt.Function> methods = new List<Stmt.Function>();
         while (!Check(TokenType.RIGHT_BRACE) && !IsAtEnd())
@@ -61,11 +73,22 @@ public class Parser
             methods.Add(Function("method"));
         }
 
-        Consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.");
+        Consume(TokenType.RIGHT_BRACE, "PS019");
 
         return new Stmt.Class(name, superclass, methods);
     }
-
+    
+    /*
+     * statement      → exprStmt
+     *                  | forStmt
+     *                  | ifStmt
+     *                  | printStmt
+     *                  | returnStmt
+     *                  | whileStmt
+     *                  | breakStmt
+     *                  | continueStmt
+     *                  | block ;
+     */
     private Stmt Statement()
     {
         if (Match((TokenType.FOR))) return ForStatement();
@@ -80,9 +103,14 @@ public class Parser
         return ExpressionStatement();
     }
 
+    /*
+     * forStmt        → "for" "(" ( varDecl | exprStmt | ";" )
+     *                expression? ";"
+     *                expression? ")" statement ;
+     */
     private Stmt ForStatement()
     {
-        Consume(TokenType.LEFT_PAREN, "Expected '(' after 'for'.");
+        Consume(TokenType.LEFT_PAREN, "PS020");
 
         Stmt? initializer;
         if (Match(TokenType.SEMICOLON))
@@ -106,7 +134,7 @@ public class Parser
             condition = Expression();
         }
 
-        Consume(TokenType.SEMICOLON, "Expected ';' after 'for' condition.");
+        Consume(TokenType.SEMICOLON, "PS021");
 
         Expr? increment = null;
         if (!Check(TokenType.RIGHT_PAREN))
@@ -114,7 +142,7 @@ public class Parser
             increment = Expression();
         }
 
-        Consume(TokenType.RIGHT_PAREN, "Expected ')' after 'for' clauses.");
+        Consume(TokenType.RIGHT_PAREN, "PS022");
 
         Stmt body = Statement();
 
@@ -141,9 +169,12 @@ public class Parser
         return body;
     }
 
+    /*
+     * varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
+     */
     private Stmt VarDeclaration()
     {
-        Token name = Consume(TokenType.IDENTIFIER, "Expected variable name.");
+        Token name = Consume(TokenType.IDENTIFIER, "PS023");
 
         Expr? initilizer = null;
         if (Match(TokenType.EQUAL))
@@ -151,25 +182,32 @@ public class Parser
             initilizer = Expression();
         }
 
-        Consume(TokenType.SEMICOLON, "Expected ';' after variable declaration.");
+        Consume(TokenType.SEMICOLON, "PS024");
         return new Stmt.Var(name, initilizer);
     }
 
+    /*
+     * whileStmt      → "while" "(" expression ")" statement ;
+     */
     private Stmt WhileStatement()
     {
-        Consume(TokenType.LEFT_PAREN, "Expected '(' after 'while'.");
+        Consume(TokenType.LEFT_PAREN, "PS025");
         Expr condition = Expression();
-        Consume(TokenType.RIGHT_PAREN, "Expected ')' after 'while'.");
+        Consume(TokenType.RIGHT_PAREN, "PS026");
         Stmt body = Statement();
 
         return new Stmt.While(condition, body, null);
     }
 
+    /*
+     *ifStmt         → "if" "(" expression ")" statement
+     *               ( "else" statement )? ;
+     */
     private Stmt IfStatement()
     {
-        Consume(TokenType.LEFT_PAREN, "Expected '(' after if.");
+        Consume(TokenType.LEFT_PAREN, "PS027");
         Expr condition = Expression();
-        Consume(TokenType.RIGHT_PAREN, "Expected ')' after if condition.");
+        Consume(TokenType.RIGHT_PAREN, "PS028");
 
         Stmt thenBranch = Statement();
         Stmt? elseBranch = null;
@@ -181,13 +219,19 @@ public class Parser
         return new Stmt.If(condition, thenBranch, elseBranch);
     }
 
+    /*
+     * printStmt      → "print" expression ";" ;
+     */
     private Stmt PrintStatement()
     {
         Expr value = Expression();
-        Consume(TokenType.SEMICOLON, "Expect ';' after value.");
+        Consume(TokenType.SEMICOLON, "PS029");
         return new Stmt.Print(value);
     }
 
+    /*
+     * returnStmt     -> "return" expression? ";" ;
+     */
     private Stmt ReturnStatement()
     {
         Token keyword = Previous();
@@ -197,37 +241,48 @@ public class Parser
             value = Expression();
         }
 
-        Consume(TokenType.SEMICOLON, "Expected ';' after return value.");
+        Consume(TokenType.SEMICOLON, "PS030");
         return new Stmt.Return(keyword, value);
     }
 
+    /*
+     * continueStmt   → "continue" ";" ;
+     */
     private Stmt ContinueStatement()
     {
-        Consume(TokenType.SEMICOLON, "Expect ';' after continue.");
+        Consume(TokenType.SEMICOLON, "PS031");
         return new Stmt.Continue(Previous());
     }
 
+    /*
+     * breakStmt      → "break" ";" ;
+     */
     private Stmt BreakStatement()
     {
-        Consume(TokenType.SEMICOLON, "Expect ';' after break.");
+        Consume(TokenType.SEMICOLON, "PS032");
         return new Stmt.Break(Previous());
     }
 
+    /*
+     * exprStmt       → expression ";" ;
+     */
     private Stmt ExpressionStatement()
     {
         Expr expression = Expression();
-        Consume(TokenType.SEMICOLON, "Expect ';' after expression.");
+        Consume(TokenType.SEMICOLON, "PS033");
         return new Stmt.Expression(expression);
     }
 
-    // Same function will be used for classes and functions
+    /*
+     * function       → IDENTIFIER "(" parameters? ")" block ;
+     */
     private Stmt.Function Function(string kind)
     {
         // Get function name
-        Token name = Consume(TokenType.IDENTIFIER, $"Expected {kind} name.");
+        Token name = Consume(TokenType.IDENTIFIER, ErrorResolver.Resolve("PS034", new Dictionary<string, string> { { "kind", kind } }));
 
         // Check for opening parenthesis for parameters
-        Consume(TokenType.LEFT_PAREN, $"Expected '(' after {kind} name.");
+        Consume(TokenType.LEFT_PAREN, ErrorResolver.Resolve("PS035", new Dictionary<string, string> { { "kind", kind } }));
 
         // Initialize parameters list
         List<Token> parameters = new List<Token>();
@@ -240,24 +295,27 @@ public class Parser
                 // Check maximum parameters count
                 if (parameters.Count >= 255)
                 {
-                    Error(Peek(), "Can't have more than 255 parameters.");
+                    Error(Peek(), "PS001");
                 }
 
                 // Add parameter to list
-                parameters.Add(Consume(TokenType.IDENTIFIER, "Expected parameter name."));
+                parameters.Add(Consume(TokenType.IDENTIFIER, "PS003"));
             } while (Match(TokenType.COMMA));
         }
 
         // Check for closing parenthesis
-        Consume(TokenType.RIGHT_PAREN, "Expected ')' after parameters.");
+        Consume(TokenType.RIGHT_PAREN, "PS004");
 
         // Check for left brace
-        Consume(TokenType.LEFT_BRACE, "Expected '{' before" + kind + " body");
+        Consume(TokenType.LEFT_BRACE, ErrorResolver.Resolve("PS005", new Dictionary<string, string> { { "kind", kind } }));
 
         List<Stmt> body = Block();
         return new Stmt.Function(name, parameters, body);
     }
 
+    /*
+     * block          → "{" declaration* "}" ;
+     */
     private List<Stmt> Block()
     {
         List<Stmt> statements = new List<Stmt>();
@@ -267,15 +325,28 @@ public class Parser
             statements.Add(Declaration());
         }
 
-        Consume(TokenType.RIGHT_BRACE, "Expect '}' after block.");
+        Consume(TokenType.RIGHT_BRACE, "PS006");
         return statements;
     }
-
+    
+    /*
+     * expression     → assignment ;
+     */
     private Expr Expression()
     {
         return Assignment();
     }
 
+    
+    /*
+     * assignment     → ( call "." )? IDENTIFIER ( "=" assignment
+     *                              | "+=" assignment
+     *                              | "-=" assignment
+     *                              | "*=" assignment
+     *                              | "/=" assignment
+     *                              | "%=" assignment )
+     *                    | logic_or ;
+     */
     private Expr Assignment()
     {
         Expr expr = Or();
@@ -294,7 +365,7 @@ public class Parser
                 return new Expr.Set(get.Obj, get.Name, value);
             }
 
-            Error(equals, "Invalid assignment target.");
+            Error(equals, "PS007");
         }
 
         if (Match(TokenType.PLUS_EQUAL, TokenType.MINUS_EQUAL, TokenType.STAR_EQUAL,
@@ -321,7 +392,7 @@ public class Parser
             
             if (desugaredExpr == null)
             {
-                Mda.Error(operatorToken, "Invalid assignment target for compound assignment operator.");
+                Mda.Error(operatorToken, "PS008");
             }
 
             return expr switch
@@ -358,7 +429,7 @@ public class Parser
             
             if (desugaredExpr == null)
             {
-                Mda.Error(operatorToken, "Invalid assignment target for increment/decrement operator.");
+                Mda.Error(operatorToken, "PS009");
             }
 
             return expr switch
@@ -372,6 +443,9 @@ public class Parser
         return expr;
     }
 
+    /*
+     * logic_or       → logic_and ( "or" logic_and )* ;
+     */
     private Expr Or()
     {
         Expr expr = And();
@@ -386,6 +460,9 @@ public class Parser
         return expr;
     }
 
+    /*
+     * logic_and      → equality ( "and" equality )* ;
+     */
     private Expr And()
     {
         Expr expr = Equality();
@@ -484,6 +561,9 @@ public class Parser
         return Call();
     }
 
+    /*
+     * call           → primary ( "(" arguments? ")" | "." IDENTIFIER )* ;
+     */
     private Expr Call()
     {
         Expr expr = Primary();
@@ -496,7 +576,7 @@ public class Parser
             }
             else if (Match(TokenType.DOT))
             {
-                Token name = Consume(TokenType.IDENTIFIER, "Expected property name after '.'.");
+                Token name = Consume(TokenType.IDENTIFIER, "PS010");
                 expr = new Expr.Get(expr, name);
             }
             else
@@ -507,7 +587,7 @@ public class Parser
 
         return expr;
     }
-
+    
     private Expr FinishCall(Expr callee)
     {
         List<Expr> arguments = new List<Expr>();
@@ -521,7 +601,7 @@ public class Parser
                 // No real reason to do this except for convention
                 if (arguments.Count >= 255)
                 {
-                    Error(Peek(), "Can't have more than 255 arguments.");
+                    Error(Peek(), "PS002");
                 }
 
                 arguments.Add(Expression());
@@ -529,7 +609,7 @@ public class Parser
         }
 
         // check for closing parenthesis after arguments list
-        Token paren = Consume(TokenType.RIGHT_PAREN, "Expected ')' after arguments.");
+        Token paren = Consume(TokenType.RIGHT_PAREN, "PS011");
 
         return new Expr.Call(callee, paren, arguments);
     }
@@ -552,8 +632,8 @@ public class Parser
         if (Match(TokenType.SUPER))
         {
             Token keyword = Previous();
-            Consume(TokenType.DOT, "Expect '.' after 'super'.");
-            Token method = Consume(TokenType.IDENTIFIER, "Expect superclass method name.");
+            Consume(TokenType.DOT, "PS012");
+            Token method = Consume(TokenType.IDENTIFIER, "PS013");
             return new Expr.Super(keyword, method);
         }
 
@@ -567,13 +647,17 @@ public class Parser
         if (Match(TokenType.LEFT_PAREN))
         {
             Expr expr = Expression();
-            Consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
+            Consume(TokenType.RIGHT_PAREN, "PS014");
             return new Expr.Grouping(expr);
         }
 
-        throw Error(Peek(), "Expect expression.");
+        throw Error(Peek(), "PS015");
     }
 
+    /*
+     * Consume the current token if it is of the given type.
+     * If it is not, report a ParseError.
+     */
     private Token Consume(TokenType tokenType, string message)
     {
         if (Check(tokenType)) return Advance();
@@ -586,7 +670,8 @@ public class Parser
      */
     private ParseError Error(Token token, string message)
     {
-        Mda.Error(token, message);
+        string formattedMessage = ErrorResolver.Resolve(message);
+        Mda.Error(token, formattedMessage);
         return new ParseError();
     }
 
@@ -680,6 +765,9 @@ public class Parser
         return _tokens[_current - 1];
     }
 
+    /*
+     * Returns the equivalent operator token for a compound assignment operator.
+     */
     private Token GetEquivalentOperator(TokenType compoundType, Token token)
     {
         return compoundType switch

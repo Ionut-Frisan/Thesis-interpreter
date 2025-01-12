@@ -73,11 +73,11 @@ class Mda
         Optimizer optimizer = new Optimizer(statements);
         statements = optimizer.Optimize();
         
-        AstPrinter printer = new AstPrinter();
-        foreach (var statement in statements)
-        {
-            Console.WriteLine(printer.Print(statement));
-        }
+        // AstPrinter printer = new AstPrinter();
+        // foreach (var statement in statements)
+        // {
+        //     Console.WriteLine(printer.Print(statement));
+        // }
         
         Resolver resolver = new Resolver(Interpreter);
         resolver.Resolve(statements);

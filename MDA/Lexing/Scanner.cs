@@ -1,3 +1,5 @@
+using MDA.Errors;
+
 namespace MDA;
 
 public class Scanner
@@ -198,7 +200,7 @@ public class Scanner
             }
             else
             {
-                Mda.Error(_line, _column, $"Unrecognized character '{c}'");
+                Mda.Error(_line, _column, ErrorResolver.Resolve("SC001", new() { { "character", c.ToString() } }));;
                 _column++;
             }
             break;
@@ -256,7 +258,7 @@ public class Scanner
 
         if (IsAtEnd())
         {
-            Mda.Error(_line, _column, "Unterminated string.");
+            Mda.Error(_line, _column, ErrorResolver.Resolve("SC002"));
             return;
         }
 
