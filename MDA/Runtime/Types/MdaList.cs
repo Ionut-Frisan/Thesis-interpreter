@@ -23,6 +23,9 @@ public class MdaList : IMdaCallable
         methods["lastIndexOf"] = new MdaListLastIndexOf(this);
         methods["remove"] = new MdaListRemove(this);
         methods["removeAll"] = new MdaListRemoveAll(this);
+        methods["filter"] = new MdaListFilter(this);
+        methods["filtered"] = new MdaListFiltered(this);
+        methods["customSort"] = new MdaListCustomSort(this);
     }
 
     /*
@@ -180,6 +183,55 @@ public class MdaList : IMdaCallable
     public object LastIndexOf(object value)
     {
         return _elements.LastIndexOf(value);
+    }
+    
+    /*
+     * Create a new list filtered by the given function.
+     *
+     * Returns the filtered list.
+     */
+    public object Filtered(Interpreter interpreter, MdaFunction function)
+    {
+        MdaList list = new();
+        foreach (var element in _elements)
+        {
+            if (Utils.IsTruthy(function.Call(interpreter, new List<object>{ element })))
+            {
+                list.Push(element);
+            }
+        }
+        return list;
+    }    
+    
+    /*
+     * Filter the array by the given function.
+     *
+     * Returns the array.
+     */
+    public object Filter(Interpreter interpreter, MdaFunction function)
+    {
+        _elements.RemoveAll((el) =>
+        {
+            return !Utils.IsTruthy(function.Call(interpreter, new List<object> { el }));
+        });
+
+        return this;
+    }
+    
+    public object CustomSort(Interpreter interpreter, MdaFunction function)
+    {
+        object? res = null;
+        _elements.Sort((a, b) =>
+        {
+            res = function.Call(interpreter, new List<object> { a, b });
+            if (res is double d)
+            {
+                return (int)d;
+            }
+
+            return 0;
+        });
+        return this;
     }
     
     /*

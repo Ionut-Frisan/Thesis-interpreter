@@ -85,7 +85,14 @@ class Mda
         // Stop if there was a resolution error.
         if (_hadError) return;
 
-        Interpreter.Interpret(statements);
+        try
+        {
+            Interpreter.Interpret(statements);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message.Length);
+        }
     }
 
     public static void Error(int line, int column, string message)
@@ -113,7 +120,15 @@ class Mda
 
     public static void RuntimeError(RuntimeError error)
     {
-        Console.Error.WriteLine($"[line {error.Token.Line}:{error.Token.Column}] {error.Message}");
+        Token? token = error.Token;
+        if (token == null)
+        {
+            Console.Error.WriteLine($"[Runtime Error]: {error.Message}");
+        }
+        else
+        {
+            Console.Error.WriteLine($"[line {error.Token.Line}:{error.Token.Column}] {error.Message}");
+        }
         _hadRuntimeError = true;
     }
 }

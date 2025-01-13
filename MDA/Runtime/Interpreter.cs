@@ -44,7 +44,7 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         else
         {   
             // false && x -> don't evaluate x as expression is falsy anyway
-            if (Utils.IsTruthy(left)) return left;
+            if (!Utils.IsTruthy(left)) return left;
         }
         
         return Evaluate(expr.Right);
