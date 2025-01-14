@@ -1,6 +1,6 @@
 ## List of things that can be added to the language
 
-- [ ] Arrays **!important!**
+- [x] Arrays
 - [x] % operator (Rest of division)
 - [x] Compound assignment operators (+=, -=, *=, /=, %=)
 - [x] ++ and -- operators
@@ -12,6 +12,10 @@
 - [ ] Import/packages
 - [ ] Try/catch/finally and Error class
 - [ ] Standard library
+  - [x] Add support for native classes
+  - [x] Add support for native functions
+  - [ ] Add support for native modules
+  - [ ] Implement standard library
 - [ ] Types and sound typing
 - [ ] Static classes
   ```
