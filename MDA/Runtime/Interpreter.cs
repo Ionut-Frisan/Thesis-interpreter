@@ -13,8 +13,22 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     public Interpreter()
     {
         _environment = _globals;
+        
+        InitializeNatives();
+    }
+    
+    private void InitializeNatives()
+    {
+        NativeFunctionRegistry.RegisterFromType(typeof(NativeFunctions));
+        NativeFunctionRegistry.RegisterClass<RandomClass>();
+        NativeFunctionRegistry.RegisterClass<ConsoleClass>();
+        NativeFunctionRegistry.RegisterClass<TestClass>();
 
-        _globals.Define("clock", new ClockFunction());
+        foreach (var name in NativeFunctionRegistry.GetAllFunctionNames())
+        {
+            var (func, arity) = NativeFunctionRegistry.GetFunction(name);
+            _globals.Define(name, new NativeCallable(func, arity));
+        }
     }
     
     public void Interpret(List<Stmt> statements)
@@ -449,6 +463,12 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     
     private object LookupVariable(Token name, Expr expr)
     {
+        if (NativeFunctionRegistry.HasFunction(name.Lexeme))
+        {
+            var (func, arity) = NativeFunctionRegistry.GetFunction(name.Lexeme);
+            return new NativeCallable(func, arity);
+        }
+        
         if (_locals.TryGetValue(expr, out int distance))
         {
             return _environment.GetAt(distance, name.Lexeme);
