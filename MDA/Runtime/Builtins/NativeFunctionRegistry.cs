@@ -19,10 +19,10 @@ public static class NativeFunctionRegistry
 
     public static void RegisterFromType(Type type)
     {
-        var methodsInfo = type.GetMethods()
+        var methodInfos = type.GetMethods()
             .Where(m => m.GetCustomAttribute<NativeFunctionAttribute>() != null);
 
-        foreach (var methodInfo in methodsInfo)
+        foreach (var methodInfo in methodInfos)
         {
             var attr = methodInfo.GetCustomAttribute<NativeFunctionAttribute>();
             _functions[attr.Name] = (
