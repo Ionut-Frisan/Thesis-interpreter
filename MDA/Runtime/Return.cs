@@ -2,9 +2,9 @@ namespace MDA;
 
 public class Return : Exception
 {
-    public object Value;
+    public readonly object? Value;
 
-    public Return(object value) : base()
+    public Return(object? value) : base()
     {
         this.Value = value;
     }

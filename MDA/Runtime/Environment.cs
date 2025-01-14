@@ -19,7 +19,7 @@ public class Environment
 
     public void Define(string name, object? value)
     {
-        // TODO: might want to check if the name already is in the map so that redefining of variables is not allowed
+        if (_values.ContainsKey(name)) throw new RuntimeError(null, $"Variable '{name}' is already defined.");
         _values.Add(name, value);
     }
     

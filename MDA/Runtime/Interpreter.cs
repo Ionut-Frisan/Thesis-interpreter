@@ -14,7 +14,13 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     {
         _environment = _globals;
 
-        _globals.Define("clock", new ClockFunction());
+        // _globals.Define("clock", new ClockFunction());
+        var nativeFunctions = NativeFunctions.GetAllNativeFunctions();
+
+        foreach (var nativeFunction in nativeFunctions)
+        {
+            _globals.Define(nativeFunction.Key, nativeFunction.Value);
+        }
     }
     
     public void Interpret(List<Stmt> statements)

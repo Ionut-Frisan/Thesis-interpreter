@@ -2,12 +2,12 @@ namespace MDA;
 
 public class MdaInstance
 {
-    private readonly MdaClass _klass;
+    public readonly MdaClass Klass;
     private readonly IDictionary<string, object> fields = new Dictionary<string, object>();
     
     public MdaInstance(MdaClass klass)
     {
-        _klass = klass;
+        Klass = klass;
     }
 
     public object Get(Token name)
@@ -17,7 +17,7 @@ public class MdaInstance
             return fields[name.Lexeme]!;
         }
         
-        MdaFunction method = _klass.FindMethod(name.Lexeme);
+        MdaFunction method = Klass.FindMethod(name.Lexeme);
         if (method != null) return method.Bind(this);
         
         throw new RuntimeError(name, $"Undefined property '{name.Lexeme}' on {this}'.");
@@ -28,5 +28,5 @@ public class MdaInstance
         fields[name.Lexeme] = value;
     }
     
-    public override string ToString() => $"<{_klass.Name} instance>";
+    public override string ToString() => $"<{Klass.Name} instance>";
 }
