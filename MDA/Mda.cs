@@ -91,7 +91,7 @@ class Mda
         }
         catch (Exception e)
         {
-            Console.WriteLine(e.Message);
+            Console.Error.WriteLine(e);
         }
     }
 

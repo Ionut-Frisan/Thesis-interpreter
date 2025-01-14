@@ -28,5 +28,10 @@ public class MdaInstance
         fields[name.Lexeme] = value;
     }
     
+    public void Set(string name, object value)
+    {
+        fields[name] = value;
+    }
+    
     public override string ToString() => $"<{Klass.Name} instance>";
 }

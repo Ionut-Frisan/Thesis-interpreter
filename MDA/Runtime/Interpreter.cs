@@ -13,13 +13,19 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     public Interpreter()
     {
         _environment = _globals;
-
-        // _globals.Define("clock", new ClockFunction());
+        
         var nativeFunctions = NativeFunctions.GetAllNativeFunctions();
 
         foreach (var nativeFunction in nativeFunctions)
         {
             _globals.Define(nativeFunction.Key, nativeFunction.Value);
+        }
+        
+        NativeClassRegistry.RegisterAll();
+        var nativeClasses = NativeClassRegistry.GetAll();
+        foreach (var nativeClass in nativeClasses)
+        {
+            _globals.Define(nativeClass.Key, nativeClass.Value);
         }
     }
     
@@ -73,9 +79,26 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     public object VisitSuperExpr(Expr.Super expr)
     {
         int distance = _locals[expr];
-        MdaClass superclass = (MdaClass)_environment.GetAt(distance, "super");
         MdaInstance obj = (MdaInstance)_environment.GetAt(distance - 1, "this");
-        MdaFunction method = superclass.FindMethod(expr.Method.Lexeme);
+        object superclass = _environment.GetAt(distance, "super");
+
+        if (superclass is NativeClass nativeSuperclass)
+        {
+            NativeMethod nativeMethod = nativeSuperclass.FindMethod(expr.Method.Lexeme);
+            if (nativeMethod == null)
+            {
+                throw new RuntimeError(expr.Method, $"Undefined property '{expr.Method.Lexeme}'.");
+            }
+
+            return nativeMethod.Bind(obj);
+        }
+
+        if (!(superclass is MdaClass MdaSuperClass))
+        {
+            throw new RuntimeError(expr.Keyword, "Superclass must be a class.");
+        }
+
+        MdaFunction method = (MdaFunction)MdaSuperClass.FindMethod(expr.Method.Lexeme);
 
         if (method == null)
         {

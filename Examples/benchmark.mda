@@ -14,7 +14,7 @@ fun benchmark(label, code) {
     print "'" + label + "' took " + (endTime - startTime) + "ms";
 }
 
-class Math {
+class LocalMath {
   square(n) {
     return n * n;
   }
@@ -97,7 +97,7 @@ benchmark("Subclass Field Access", benchmarkSubclassFieldAccess);
 
 // Benchmark class method calls
 fun benchmarkClassMethodCalls() {
-    var math = Math();
+    var math = LocalMath();
     for (var i = 0; i < LOOP_COUNT; i = i + 1) {
         math.square(3);
     }
@@ -252,7 +252,7 @@ fun benchmarkRecursiveFactorial() {
     }
     var result = factorial(1000);
 }
-benchmark("Recursive Factorial", benchmarkRecursiveFactorial);
+// benchmark("Recursive Factorial", benchmarkRecursiveFactorial);
 
 // Benchmark iterative factorial calculation
 fun benchmarkIterativeFactorial() {
@@ -311,7 +311,7 @@ fun benchmarkManyParameters() {
         sum = manyParams(1, 2, 3, 4, 5, 6, 7, 8);
     }
 }
-benchmark("Many Parameters", benchmarkManyParameters);
+// benchmark("Many Parameters", benchmarkManyParameters);
 
 // Benchmark deep recursion
 fun benchmarkDeepRecursion() {
@@ -321,4 +321,4 @@ fun benchmarkDeepRecursion() {
     }
     var result = recurse(1000);
 }
-benchmark("Deep Recursion", benchmarkDeepRecursion);
+// benchmark("Deep Recursion", benchmarkDeepRecursion);

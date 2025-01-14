@@ -13,7 +13,7 @@ public class MdaClass : IMdaCallable
         _methods = methods;
     }
     
-    public MdaFunction? FindMethod(string name)
+    public virtual MdaFunction? FindMethod(string name)
     {
         if (_methods.ContainsKey(name))
         {
@@ -28,7 +28,7 @@ public class MdaClass : IMdaCallable
         return null;
     }
     
-    public object Call(Interpreter interpreter, ICollection<object> arguments)
+    public virtual object Call(Interpreter interpreter, ICollection<object> arguments)
     {
         MdaInstance instance = new MdaInstance(this);
         MdaFunction initializer = FindMethod("init");
@@ -40,7 +40,7 @@ public class MdaClass : IMdaCallable
         return instance;
     }
 
-    public int Arity()
+    public virtual int Arity()
     {
         MdaFunction? initializer = FindMethod("init");
         return initializer?.Arity() ?? 0;
