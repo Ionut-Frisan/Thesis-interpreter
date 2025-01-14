@@ -22,7 +22,6 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         NativeFunctionRegistry.RegisterFromType(typeof(NativeFunctions));
         NativeFunctionRegistry.RegisterClass<RandomClass>();
         NativeFunctionRegistry.RegisterClass<ConsoleClass>();
-        NativeFunctionRegistry.RegisterClass<TestClass>();
 
         foreach (var name in NativeFunctionRegistry.GetAllFunctionNames())
         {
