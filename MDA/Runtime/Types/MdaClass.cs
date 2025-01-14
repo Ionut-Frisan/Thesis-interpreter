@@ -1,5 +1,3 @@
-using MDA.Builtins;
-
 namespace MDA;
 
 public class MdaClass : IMdaCallable
@@ -42,19 +40,11 @@ public class MdaClass : IMdaCallable
         return instance;
     }
 
-    public virtual int Arity()  
+    public int Arity()
     {
         MdaFunction? initializer = FindMethod("init");
-        Console.WriteLine(initializer?.Arity());
         return initializer?.Arity() ?? 0;
     }
     
     public override string ToString() => $"<Class {Name}>";
-    
-    // Will be used by native classes
-    public virtual bool HasMethod(string name) => false;
-    
-    // Will be used by native classes
-    public virtual NativeMethodInfo GetMethod(string name) => 
-        throw new RuntimeError(null, $"Undefined method '{name}'.");
 }
