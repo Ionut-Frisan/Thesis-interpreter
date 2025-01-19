@@ -17,6 +17,16 @@ public class AstPrinter : Expr.IVisitor<string>, Stmt.IVisitor<string>
     {
         return stmt.Accept(this);
     }
+    
+    public string Print(ICollection<Stmt> stmts)
+    {
+        StringBuilder builder = new StringBuilder();
+        foreach (var stmt in stmts)
+        {
+            builder.Append(stmt.Accept(this));
+        }
+        return builder.ToString();
+    }
 
     public string VisitAssignExpr(Expr.Assign expr)
     {

@@ -58,13 +58,13 @@ fun benchmarkAddition() {
 }
 benchmark("Addition", benchmarkAddition);
 
-fun benchmarkCompundAddition() {
+fun benchmarkCompoundAddition() {
     var result = 0;
     for (var i = 0; i < LOOP_COUNT; i = i + 1) {
         result ++;
     }
 }
-benchmark("Compound Addition", benchmarkCompundAddition);
+benchmark("Compound Addition", benchmarkCompoundAddition);
 
 // Benchmark subclass instantiation
 fun benchmarkSubclassInstantiation() {

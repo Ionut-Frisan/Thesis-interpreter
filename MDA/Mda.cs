@@ -79,6 +79,9 @@ class Mda
         //     Console.WriteLine(printer.Print(statement));
         // }
         
+        // AstJsonSerializer serializer = new AstJsonSerializer();
+        // Console.WriteLine(serializer.ToJson(statements));
+        
         Resolver resolver = new Resolver(Interpreter);
         resolver.Resolve(statements);
         

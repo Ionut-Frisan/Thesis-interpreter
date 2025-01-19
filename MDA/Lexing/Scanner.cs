@@ -57,163 +57,166 @@ public class Scanner
     }
 
     private void ScanToken()
-{
-    char c = Advance();
-    switch (c)
     {
-        case '(':
-            AddToken(TokenType.LEFT_PAREN);
-            _column++;
-            break;
-        case ')':
-            AddToken(TokenType.RIGHT_PAREN);
-            _column++;
-            break;
-        case '{':
-            AddToken(TokenType.LEFT_BRACE);
-            _column++;
-            break;
-        case '}':
-            AddToken(TokenType.RIGHT_BRACE);
-            _column++;
-            break;
-        case '[':
-            AddToken(TokenType.LEFT_BRACKET);
-            _column++;
-            break;
-        case ']':
-            AddToken(TokenType.RIGHT_BRACKET);
-            _column++;
-            break;
-        case ',':
-            AddToken(TokenType.COMMA);
-            _column++;
-            break;
-        case '.':
-            AddToken(TokenType.DOT);
-            _column++;
-            break;
-        case '-':
-            if (Match('-'))
-            {
-                AddToken(TokenType.MINUS_MINUS);
-                _column += 2;
-            }
-            else
-            {
-                if (Match('='))
-                {
-                    AddToken(TokenType.MINUS_EQUAL);
-                    _column += 2;
-                }
-                else
-                {
-                    AddToken(TokenType.MINUS);
-                    _column++;
-                }
-            }
-            break;
-        case '+':
-            if (Match('+'))
-            {
-                AddToken(TokenType.PLUS_PLUS);
-                _column += 2;
-            }
-            else
-            {
-                if (Match('='))
-                {
-                    AddToken(TokenType.PLUS_EQUAL);
-                    _column += 2;
-                }
-                else
-                {
-                    AddToken(TokenType.PLUS);
-                    _column++;
-                }
-            }
-            break;
-        case ';':
-            AddToken(TokenType.SEMICOLON);
-            _column++;
-            break;
-        case '*':
-            AddToken(Match('=') ? TokenType.STAR_EQUAL : TokenType.STAR);
-            _column += Match('=') ? 2 : 1;
-            break;
-        case '%':
-            AddToken(Match('=') ? TokenType.PERCENT_EQUAL : TokenType.PERCENT);
-            _column += Match('=') ? 2 : 1;
-            break;
-        case '!':
-            AddToken(Match('=') ? TokenType.BANG_EQUAL : TokenType.BANG);
-            _column += Match('=') ? 2 : 1;
-            break;
-        case '=':
-            AddToken(Match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL);
-            _column += Match('=') ? 2 : 1;
-            break;
-        case '<':
-            AddToken(Match('=') ? TokenType.LESS_EQUAL : TokenType.LESS);
-            _column += Match('=') ? 2 : 1;
-            break;
-        case '>':
-            AddToken(Match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
-            _column += Match('=') ? 2 : 1;
-            break;
-        case '/':
-            if (Match('/'))
-            {
-                while (Peek() != '\n' && !IsAtEnd()) Advance();
-                _column += _current - _start;
-            }
-            else
-            {
-                if (Match('='))
-                {
-                    AddToken(TokenType.SLASH_EQUAL);
-                    _column += 2;
-                }
-                else
-                {
-                    AddToken(TokenType.SLASH);
-                    _column++;
-                }
-            }
-
-            break;
-        case ' ':
-        case '\r':
-        case '\t':
-            _column++;
-            break;
-        case '\n':
-            _line++;
-            _column = 1;
-            break;
-        case '"':
-            ProcessString();
-            _column += _current - _start;
-            break;
-        default:
-            if (IsDigit(c))
-            {
-                ProcessNumber();
-                _column += _current - _start;
-            }
-            else if (IsAlpha(c))
-            {
-                Identifier();
-                _column += _current - _start;
-            }
-            else
-            {
-                Mda.Error(_line, _column, ErrorResolver.Resolve("SC001", new() { { "character", c.ToString() } }));;
+        char c = Advance();
+        switch (c)
+        {
+            case '(':
+                AddToken(TokenType.LEFT_PAREN);
                 _column++;
-            }
-            break;
+                break;
+            case ')':
+                AddToken(TokenType.RIGHT_PAREN);
+                _column++;
+                break;
+            case '{':
+                AddToken(TokenType.LEFT_BRACE);
+                _column++;
+                break;
+            case '}':
+                AddToken(TokenType.RIGHT_BRACE);
+                _column++;
+                break;
+            case '[':
+                AddToken(TokenType.LEFT_BRACKET);
+                _column++;
+                break;
+            case ']':
+                AddToken(TokenType.RIGHT_BRACKET);
+                _column++;
+                break;
+            case ',':
+                AddToken(TokenType.COMMA);
+                _column++;
+                break;
+            case '.':
+                AddToken(TokenType.DOT);
+                _column++;
+                break;
+            case '-':
+                if (Match('-'))
+                {
+                    AddToken(TokenType.MINUS_MINUS);
+                    _column += 2;
+                }
+                else
+                {
+                    if (Match('='))
+                    {
+                        AddToken(TokenType.MINUS_EQUAL);
+                        _column += 2;
+                    }
+                    else
+                    {
+                        AddToken(TokenType.MINUS);
+                        _column++;
+                    }
+                }
+
+                break;
+            case '+':
+                if (Match('+'))
+                {
+                    AddToken(TokenType.PLUS_PLUS);
+                    _column += 2;
+                }
+                else
+                {
+                    if (Match('='))
+                    {
+                        AddToken(TokenType.PLUS_EQUAL);
+                        _column += 2;
+                    }
+                    else
+                    {
+                        AddToken(TokenType.PLUS);
+                        _column++;
+                    }
+                }
+
+                break;
+            case ';':
+                AddToken(TokenType.SEMICOLON);
+                _column++;
+                break;
+            case '*':
+                AddToken(Match('=') ? TokenType.STAR_EQUAL : TokenType.STAR);
+                _column += Match('=') ? 2 : 1;
+                break;
+            case '%':
+                AddToken(Match('=') ? TokenType.PERCENT_EQUAL : TokenType.PERCENT);
+                _column += Match('=') ? 2 : 1;
+                break;
+            case '!':
+                AddToken(Match('=') ? TokenType.BANG_EQUAL : TokenType.BANG);
+                _column += Match('=') ? 2 : 1;
+                break;
+            case '=':
+                AddToken(Match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL);
+                _column += Match('=') ? 2 : 1;
+                break;
+            case '<':
+                AddToken(Match('=') ? TokenType.LESS_EQUAL : TokenType.LESS);
+                _column += Match('=') ? 2 : 1;
+                break;
+            case '>':
+                AddToken(Match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
+                _column += Match('=') ? 2 : 1;
+                break;
+            case '/':
+                if (Match('/'))
+                {
+                    while (Peek() != '\n' && !IsAtEnd()) Advance();
+                    _column += _current - _start;
+                }
+                else
+                {
+                    if (Match('='))
+                    {
+                        AddToken(TokenType.SLASH_EQUAL);
+                        _column += 2;
+                    }
+                    else
+                    {
+                        AddToken(TokenType.SLASH);
+                        _column++;
+                    }
+                }
+
+                break;
+            case ' ':
+            case '\r':
+            case '\t':
+                _column++;
+                break;
+            case '\n':
+                _line++;
+                _column = 1;
+                break;
+            case '"':
+                ProcessString();
+                _column += _current - _start;
+                break;
+            default:
+                if (IsDigit(c))
+                {
+                    ProcessNumber();
+                    _column += _current - _start;
+                }
+                else if (IsAlpha(c))
+                {
+                    Identifier();
+                    _column += _current - _start;
+                }
+                else
+                {
+                    Mda.Error(_line, _column, ErrorResolver.Resolve("SC001", new() { { "character", c.ToString() } }));
+                    _column++;
+                }
+
+                break;
+        }
     }
-}
 
     private bool IsDigit(char c)
     {

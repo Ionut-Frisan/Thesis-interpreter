@@ -43,7 +43,7 @@ public class Parser
 
             return Statement();
         }
-        catch (ParseError)
+        catch (ParseError parseError)
         {
             Syncronize();
             return null;
