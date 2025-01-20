@@ -1,17 +1,20 @@
 ﻿namespace MDA;
 
-class Mda
+public class Mda
 {
+    private static IExitHandler ExitHandler = new ExitHandler();
+    private static IErrorReporter ErrorReporter = new ErrorReporter(ExitHandler.Exit);
     private static readonly Interpreter Interpreter = new Interpreter();
-    private static bool _hadError;
-    private static bool _hadRuntimeError;
+    
+    public static void SetExitHandler(IExitHandler handler) => ExitHandler = handler;
+    public static void SetErrorReporter(IErrorReporter reporter) => ErrorReporter = reporter;
 
     static void Main(string[] args)
     {
         if (args.Length > 1)
         {
             Console.WriteLine("Usage: mda [script]");
-            System.Environment.Exit(1);
+            ExitHandler.Exit(1);
         }
         else if (args.Length == 1)
         {
@@ -30,15 +33,15 @@ class Mda
 
         if (String.IsNullOrWhiteSpace(data))
         {
-            _hadError = true;
-            System.Environment.Exit(1);
+            ErrorReporter.Error(0,0, "File is empty.");
+            ExitHandler.Exit(35);
         }
 
         Run(data);
 
         // Indicate an error in the exit code.
-        if (_hadError) System.Environment.Exit(65);
-        if (_hadRuntimeError) System.Environment.Exit(70);
+        if (ErrorReporter.HadError) ExitHandler.Exit(65);
+        if (ErrorReporter.HadRuntimeError) ExitHandler.Exit(70);
     }
 
     private static void RunPrompt()
@@ -51,11 +54,11 @@ class Mda
             var line = reader.ReadLine();
             if (String.IsNullOrEmpty(line))
             {
-                System.Environment.Exit(1);
+                ExitHandler.Exit(1);
             }
 
-            Run(line);
-            _hadError = false;
+            Run(line!);
+            ErrorReporter.Reset();
         }
     }
 
@@ -68,7 +71,7 @@ class Mda
         List<Stmt> statements = parser.Parse();
         
         // Stop if there was a syntax error.
-        if (_hadError) return;
+        if (ErrorReporter.HadError) return;
         
         Optimizer optimizer = new Optimizer(statements);
         statements = optimizer.Optimize();
@@ -86,7 +89,7 @@ class Mda
         resolver.Resolve(statements);
         
         // Stop if there was a resolution error.
-        if (_hadError) return;
+        if (ErrorReporter.HadError) return;
 
         try
         {
@@ -100,38 +103,16 @@ class Mda
 
     public static void Error(int line, int column, string message)
     {
-        Report(line, column, "", message);
+        ErrorReporter.Error(line, column, message);
     }
 
     public static void Error(Token token, string message)
     {
-        if (token.Type == TokenType.EOF)
-        {
-            Report(token.Line, token.Column, "at end", message);
-        }
-        else
-        {
-            Report(token.Line, token.Column, "at", "'" + token.Lexeme + "' " + message);
-        }
-    }
-
-    private static void Report(int line, int column, string where, string message)
-    {
-        Console.Error.WriteLine($"[line {line}:{column}] Error {where}: {message}");
-        _hadError = true;
+        ErrorReporter.Error(token, message);
     }
 
     public static void RuntimeError(RuntimeError error)
     {
-        Token? token = error.Token;
-        if (token == null)
-        {
-            Console.Error.WriteLine($"[Runtime Error]: {error.Message}");
-        }
-        else
-        {
-            Console.Error.WriteLine($"[line {error.Token.Line}:{error.Token.Column}] {error.Message}");
-        }
-        _hadRuntimeError = true;
+        ErrorReporter.RuntimeError(error);
     }
 }

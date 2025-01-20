@@ -4,11 +4,11 @@ public class Token
 {
     public readonly TokenType Type;
     public readonly string Lexeme;
-    public readonly object Literal;
+    public readonly object? Literal;
     public readonly int Line;
     public readonly int Column;
     
-    public Token(TokenType type, string lexeme, object literal, int line, int column)
+    public Token(TokenType type, string lexeme, object? literal, int line, int column)
     {
         this.Type = type;
         this.Lexeme = lexeme;

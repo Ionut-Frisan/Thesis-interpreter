@@ -1,7 +1,23 @@
+using Moq;
+using Xunit.Abstractions;
+using Xunit.Sdk;
+
 namespace MDA.Tests.Unit.Parser;
 
 public class StatementParsingTests
 {
+    private readonly Mock<IErrorReporter> _mockErrorReporter = new();
+    private readonly Mock<IExitHandler> _mockExitHandler = new();
+    private readonly ITestOutputHelper _output;
+    
+    public StatementParsingTests(ITestOutputHelper output)
+    {
+        Mda.SetErrorReporter(_mockErrorReporter.Object);
+        Mda.SetExitHandler(_mockExitHandler.Object);
+        
+        _output = output;
+    }
+    
     // Variable declaration and assignment
     [Fact]
     public void ParseVariableDeclaration_WithoutInitializer()
@@ -65,6 +81,17 @@ public class StatementParsingTests
 
         Assert.Equal("(; (assign a 1))", result);
     }
+
+    [Theory]
+    [ClassData(typeof(StatementParsingData.ParseInvalidAssignmentTargetData))]
+    public void ParseAssignment_ToInvalidTarget_ReportsError(List<Token> tokens)
+    {
+        var parser = new MDA.Parser(tokens);
+        var statements = parser.Parse();
+        
+        
+        _mockErrorReporter.Verify(r => r.Error(It.IsAny<Token>(), It.Is<string>(x => x.Contains("PS007"))), Times.Once());
+    }
     
     [Theory]
     [ClassData(typeof(StatementParsingData.ParseCompoundAssignmentData))]
@@ -77,8 +104,18 @@ public class StatementParsingTests
         var result = printer.Print(statement);
 
         Assert.Equal(expected, result);
-    }    
+    }
     
+    [Theory]
+    [ClassData(typeof(StatementParsingData.ParseInvalidCompoundAssignmentTargetData))]
+    public void ParseCompoundAssignment_WithInvalidTarget_ReportsError(List<Token> tokens)
+    {
+        var parser = new MDA.Parser(tokens);
+        var statements = parser.Parse();
+        
+        _mockErrorReporter.Verify(r => r.Error(It.IsAny<Token>(), It.Is<string>(x => x.Contains("PS008"))), Times.Once());
+    }
+
     // Control flow
     [Fact]
     public void ParseIf_WithoutElse()
@@ -436,7 +473,95 @@ public class StatementParsingTests
         Assert.Equal("(fun foo() (; (assign a 1)))", result);
     }
     
-    // TODO: Add test for too many arguments parse error
+    [Fact]
+    public void ParseFunctionDeclaration_FailsWithTooManyArguments()
+    {
+        var tokens = new List<Token>
+        {
+            new Token(TokenType.FUN, "fun", null, 1, 1),
+            new Token(TokenType.IDENTIFIER, "foo", "foo", 1, 2),
+            new Token(TokenType.LEFT_PAREN, "(", null, 1, 3),
+        };
+
+        for (int i = 0; i < 511; i += 2)
+        {
+            tokens.Add(new Token(TokenType.IDENTIFIER, $"arg{i}", $"arg{i}", 1, i + 4));
+            if (i < 510)
+            {
+                tokens.Add(new Token(TokenType.COMMA, ",", null, 1, i + 5));
+            }
+        }
+        
+        tokens.Add(new Token(TokenType.RIGHT_PAREN, ")", null, 1, 610));
+        tokens.Add(new Token(TokenType.LEFT_BRACE, "{", null, 1, 611));
+        tokens.Add(new Token(TokenType.RIGHT_BRACE, "}", null, 1, 612));
+        tokens.Add(new Token(TokenType.EOF, "", null, 1, 613));
+
+        var parser = new MDA.Parser(tokens);
+        var statement = parser.Parse();
+        
+        _mockErrorReporter.Verify(r => r.Error(It.IsAny<Token>(), It.Is<string>(message => message.Contains("PS001"))), Times.Once);
+    }
+    
+    
+    [Fact]
+    public void ParseFunction_WithNoParameterNameAfterComma_ReportsError()
+    {
+        var tokens = new List<Token>
+        {
+            new Token(TokenType.FUN, "fun", null, 1, 1),
+            new Token(TokenType.IDENTIFIER, "foo", "foo", 1, 2),
+            new Token(TokenType.LEFT_PAREN, "(", null, 1, 3),
+            new Token(TokenType.COMMA, ",", null, 1, 4),
+            new Token(TokenType.RIGHT_PAREN, ")", null, 1, 5),
+            new Token(TokenType.LEFT_BRACE, "{", null, 1, 6),
+            new Token(TokenType.RIGHT_BRACE, "}", null, 1, 7),
+            new Token(TokenType.EOF, "", null, 1, 8)
+        };
+        
+        var parser = new MDA.Parser(tokens);
+        var statement = parser.Parse();
+        
+        _mockErrorReporter.Verify(r => r.Error(It.IsAny<Token>(), It.Is<string>(x => x.Contains("PS003"))), Times.Once());
+    }
+    
+    [Fact]
+    public void ParseFunction_WithMissingRightParenthesis_ReportsError()
+    {
+        var tokens = new List<Token>
+        {
+            new Token(TokenType.FUN, "fun", null, 1, 1),
+            new Token(TokenType.IDENTIFIER, "foo", "foo", 1, 2),
+            new Token(TokenType.LEFT_PAREN, "(", null, 1, 3),
+            new Token(TokenType.LEFT_BRACE, "{", null, 1, 5),
+            new Token(TokenType.RIGHT_BRACE, "}", null, 1, 6),
+            new Token(TokenType.EOF, "", null, 1, 7)
+        };
+        
+        var parser = new MDA.Parser(tokens);
+        var statement = parser.Parse();
+        
+        _mockErrorReporter.Verify(r => r.Error(It.IsAny<Token>(), It.Is<string>(x => x.Contains("PS003"))), Times.Once());
+    }   
+    
+    [Fact]
+    public void ParseFunction_WithMissingLeftBrace_ReportsError()
+    {
+        var tokens = new List<Token>
+        {
+            new Token(TokenType.FUN, "fun", null, 1, 1),
+            new Token(TokenType.IDENTIFIER, "foo", "foo", 1, 2),
+            new Token(TokenType.LEFT_PAREN, "(", null, 1, 3),
+            new Token(TokenType.RIGHT_PAREN, ")", null, 1, 4),
+            new Token(TokenType.RIGHT_BRACE, "}", null, 1, 6),
+            new Token(TokenType.EOF, "", null, 1, 7)
+        };
+        
+        var parser = new MDA.Parser(tokens);
+        var statement = parser.Parse();
+        
+        _mockErrorReporter.Verify(r => r.Error(It.IsAny<Token>(), It.Is<string>(x => x.Contains("PS005"))), Times.Once());
+    }
     
     [Fact]
     public void ParseFunctionCall_WithoutArguments()
@@ -482,8 +607,34 @@ public class StatementParsingTests
 
         Assert.Equal("(; (call foo 1 2))", result);
     }
-    
-    // TODO: Add test for too many arguments parse error
+
+    [Fact]
+    public void ParseFunctionCall_FailsWithTooManyArguments()
+    {
+        var tokens = new List<Token>
+        {
+            new Token(TokenType.IDENTIFIER, "foo", "foo", 1, 1),
+            new Token(TokenType.LEFT_PAREN, "(", null, 1, 2),
+        };
+        
+        for (int i = 0; i < 511; i += 2)
+        {
+            tokens.Add(new Token(TokenType.NUMBER, $"{i}", i, 1, i + 3));
+            if (i < 510)
+            {
+                tokens.Add(new Token(TokenType.COMMA, ",", null, 1, i + 4));
+            }
+        }
+        
+        tokens.Add(new Token(TokenType.RIGHT_PAREN, ")", null, 1, 512));
+        tokens.Add(new Token(TokenType.SEMICOLON, ";", null, 1, 513));
+        tokens.Add(new Token(TokenType.EOF, "", null, 1, 514));
+        
+        var parser = new MDA.Parser(tokens);
+        var statement = parser.Parse();
+        
+        _mockErrorReporter.Verify(r => r.Error(It.IsAny<Token>(), It.Is<string>(message => message.Contains("PS002"))), Times.Once);
+    }
     
     // Classes
     [Fact]
@@ -702,6 +853,25 @@ public class StatementParsingTests
         
         Assert.Equal("{ (; (assign a 1)) { { (; (assign b 2))}}}", result);
     }
+    
+    [Fact]
+    public void ParseBlock_WithMissingRightBrace_ReportsError()
+    {
+        var tokens = new List<Token>
+        {
+            new Token(TokenType.LEFT_BRACE, "{", null, 1, 1),
+            new Token(TokenType.IDENTIFIER, "a", "a", 1, 2),
+            new Token(TokenType.EQUAL, "=", null, 1, 3),
+            new Token(TokenType.NUMBER, "1", 1, 1, 4),
+            new Token(TokenType.SEMICOLON, ";", null, 1, 5),
+            new Token(TokenType.EOF, "", null, 1, 6)
+        };
+        
+        var parser = new MDA.Parser(tokens);
+        var statement = parser.Parse();
+        
+        _mockErrorReporter.Verify(r => r.Error(It.IsAny<Token>(), It.Is<string>(x => x.Contains("PS006"))), Times.Once());
+    }
 
     // Return Statements
     [Fact]
@@ -743,11 +913,12 @@ public class StatementParsingTests
         Assert.Equal("(return 1)", result);
     }
 
-    [Fact]
-    public void ParseReturn_OutsideFunction_ThrowsError()
-    {
-        throw new NotImplementedException();
-    }
+    // [Fact]
+    // public void ParseReturn_OutsideFunction_ThrowsError()
+    // {
+    //     // TODO: this is a resolver error
+    //     throw new NotImplementedException();
+    // }
 
     // Error Recovery
     [Fact]
@@ -762,9 +933,4 @@ public class StatementParsingTests
         throw new NotImplementedException();
     }
     
-    [Fact]
-    public void ParseError_InvalidToken()
-    {
-        throw new NotImplementedException();
-    }
 }
