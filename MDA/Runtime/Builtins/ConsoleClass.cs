@@ -8,7 +8,6 @@ public class ConsoleClass: NativeClass
     [NativeMethod("init", 0)]
     public object Init(Interpreter interpreter, MdaInstance instance, ICollection<object> arguments)
     {
-        instance.Set("random", "random value");
         return instance;
     }
     
