@@ -1,0 +1,86 @@
+
+class Node {
+    init(value) {
+        this.value = value;
+        this.next = null;
+    }
+}
+
+class Queue {
+    init() {
+        this.front = null;
+        this.rear = null;
+    }
+    
+    isEmpty() {
+        return this.fron == null && this.rear == null;
+    }
+    
+    enqueue(new_value) {
+        var new_node = Node(new_value);
+        
+        if (this.rear == null) {
+            this.front = new_node;
+            this.rear = new_node;
+            return;
+        }
+        
+        this.rear.next = new_node;
+        this.rear = new_node;
+    }
+    
+    dequeue() {
+        if (this.isEmpty()) {
+            print "Cannot dequeue from an empty queue;
+            return;
+        }
+        
+        this.front = this.front.next;
+        
+        if (this.front == null) {
+            this.rear = null;
+        }
+    }
+    
+    getFront() {
+        if(this.isEmpty()) {
+            print "Queue is empty";
+            return null;
+        }
+        return this.front.value;
+    }   
+     
+    getRear() {
+        if(this.isEmpty()) {
+            print "Queue is empty";
+            return null;
+        }
+        return this.rear.value;
+    }
+}
+
+fun benchmark(label, code) {
+    var startTime = clock();
+    code();
+    var endTime = clock();
+    print "'" + label + "' took " + (endTime - startTime) + "ms";
+}
+
+var queue = Queue();
+var LOOP_COUNT = 1000000;
+
+fun enqueue() {
+    for (var i = 0; i < LOOP_COUNT; i++) {
+        queue.enqueue(i);
+    }
+}
+
+fun dequeue() {
+    for (var i = 0; i < LOOP_COUNT; i++) {
+        queue.dequeue();
+    }
+}
+
+benchmark("enqueue", enqueue);
+benchmark("dequeue", dequeue);
+

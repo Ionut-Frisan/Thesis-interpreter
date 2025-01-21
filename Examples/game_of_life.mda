@@ -1,0 +1,145 @@
+var console = Console();
+
+fun clearScreen() {
+    console.clear();
+}
+
+fun printGrid(grid) {
+    for (var i = 0; i < grid.length(); i++) {
+        var line_output = "";
+        for (var j = 0; j < grid[i].length(); j++) {
+            if (grid[i][j] == 0) {
+                line_output = line_output + " ";
+            } else {
+                line_output = line_output + "██";
+            }
+        }
+        console.writeLine(line_output);
+    }
+}
+
+fun countNeighbors(grid, x, y) {
+    var rows = grid.length();
+    var cols = grid[0].length();
+    var count = 0;
+
+    for (var i = -1; i <= 1; i++) {
+        for (var j = -1; j <= 1; j++) {
+            if (i == 0 and j == 0) continue;
+
+            var new_x = (x + i + rows) % rows; // Wrap around
+            var new_y = (y + j + cols) % cols; // Wrap around
+            count += grid[new_x][new_y];
+        }
+    }
+    return count;
+}
+
+fun nextGeneration(grid) {
+    var rows = grid.length();
+    var cols = grid[0].length();
+    var new_grid = [];
+    
+    for (var i = 0; i < rows; i++) {
+        new_grid[i] = [];
+        for (var j = 0; j < cols; j++) {
+            var live_neighbors = countNeighbors(grid, i, j);
+            if (grid[i][j] == 1 and (live_neighbors == 2 or live_neighbors == 3)) {
+                new_grid[i][j] = 1; // cell survives
+            } else if (grid[i][j] == 0 and live_neighbors == 3) {
+                new_grid[i][j] = 1; // cell is born
+            } else {
+                new_grid[i][j] = 0; // cell dies
+            }
+        }    
+    }
+    
+    return new_grid;
+}
+
+fun gameOfLife(rows, cols, generations, initialState) {
+    var grid = [];
+    
+    for (var i = 0; i < rows; i++) {
+        grid[i] = [];
+        for (var j = 0; j < cols; j++) {
+            grid[i][j] = 0;
+        }
+    }
+    
+    for (var i = 0; i < initialState.length(); i++) {
+        grid[initialState[i][0]][initialState[i][1]] = 1;
+    }
+    
+    for (var i = 0; i < generations; i++) {
+        clearScreen();
+        // console.writeLine("Generation " + i);
+        printGrid(grid);
+        grid = nextGeneration(grid);
+        
+        var sleepTime = 150;
+        var start = clock();
+        while (clock() - start < sleepTime) {
+            // do nothing
+        }
+    }
+}
+
+fun generateRandomGrid(rows, cols, density) {
+     var initialState = [];
+     var random = Random();
+        
+    for (var i = 0; i < rows; i++) {
+        for (var j = 0; j < cols; j++) {
+            if (random.next() < density) { // Randomly decide if the cell is alive
+                initialState.push([i, j]);
+            }
+        }
+    }
+    return initialState;
+}
+
+var rows = 20;
+var cols = 30;
+var generations = 100;
+var density = 0.15;
+
+//Random
+var initialState = generateRandomGrid(rows, cols, density);
+
+
+// Blinker (Oscillator)
+//var initialState = [
+//    [10, 10], [10, 11], [10, 12]
+//];
+
+// Spaceship
+//var initialState = [
+//    [1, 2], [2, 3], [3, 1], [3, 2], [3, 3]
+//];
+
+// Pentadecathlon 
+//var initialState = [
+//    [5, 10], [6, 10], [7, 10],
+//    [8, 9], [8, 11],
+//    [9, 10], [10, 10], [11, 10],
+//    [12, 10], [13, 10]
+//];
+
+// Beacon
+//var initialState = [
+//    [10, 10], [10, 11],
+//    [11, 10],
+//
+//    [12, 13], [13, 12], [13, 13]
+//];
+
+//  Honey Farm (Oscillator)
+//var initialState = [
+//    [10, 10], [10, 11], [10, 13], [10, 14],
+//    [11, 10], [11, 14],
+//    [12, 10], [12, 14],
+//    [13, 11], [13, 13]
+//];
+
+gameOfLife(rows, cols, generations, initialState);
