@@ -26,6 +26,7 @@ public class MdaList : IMdaCallable
         methods["filter"] = new MdaListFilter(this);
         methods["filtered"] = new MdaListFiltered(this);
         methods["customSort"] = new MdaListCustomSort(this);
+        methods["toString"] = new MdaListToString(this);
     }
 
     /*
