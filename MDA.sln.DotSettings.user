@@ -1,11 +1,25 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AEqualityAsserts_002Ecs_002Fl_003AC_0021_003FUsers_003FIonut_003FAppData_003FRoaming_003FJetBrains_003FRider2024_002E3_003Fresharper_002Dhost_003FSourcesCache_003Fad8b2779652854276d03ec153d51377686c7193799d1688e119272770d0cf_003FEqualityAsserts_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AEqualityAsserts_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003FLibrary_003FApplication_0020Support_003FJetBrains_003FRider2024_002E3_003Fresharper_002Dhost_003FSourcesCache_003Fad8b2779652854276d03ec153d51377686c7193799d1688e119272770d0cf_003FEqualityAsserts_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AExceptionAsserts_002Ecs_002Fl_003AC_0021_003FUsers_003FIonut_003FAppData_003FRoaming_003FJetBrains_003FRider2024_002E3_003Fresharper_002Dhost_003FSourcesCache_003F47921adef6414a816a08bfc17edfc0ef70baa3a6d7a6c94f9e56682a1d1c_003FExceptionAsserts_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AList_002Ecs_002Fl_003AC_0021_003FUsers_003FIonut_003FAppData_003FRoaming_003FJetBrains_003FRider2024_002E3_003Fresharper_002Dhost_003FSourcesCache_003F1b81cb3be224213a6a73519b6e340a628d9a1fb8629c351a186a26f6376669_003FList_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AList_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003FLibrary_003FApplication_0020Support_003FJetBrains_003FRider2024_002E3_003Fresharper_002Dhost_003FSourcesCache_003F1c3f7d5c03bf77051eb8a758fb3549c4e2d4cb3dc6f6d567a94a315044961e_003FList_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003ANullReferenceException_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003FLibrary_003FApplication_0020Support_003FJetBrains_003FRider2024_002E3_003Fresharper_002Dhost_003FSourcesCache_003F6cff73e54975e9cbaa1dcf8f5148358d92291660dd529044ef90b06aae7b58_003FNullReferenceException_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AObject_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003FLibrary_003FApplication_0020Support_003FJetBrains_003FRider2024_002E3_003Fresharper_002Dhost_003FSourcesCache_003F68b06b8592b1287fd78f3ee68566d6a38d6e2f45b9a9e6ebd4d0e9972f7c29_003FObject_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003ARecord_002Ecs_002Fl_003AC_0021_003FUsers_003FIonut_003FAppData_003FRoaming_003FJetBrains_003FRider2024_002E3_003Fresharper_002Dhost_003FSourcesCache_003Fbea8c41514fe19b15a2e9a98f2116d6d3effa32491c5349cfda989bc9f393_003FRecord_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003ASR_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003FLibrary_003FApplication_0020Support_003FJetBrains_003FRider2024_002E3_003Fresharper_002Dhost_003FSourcesCache_003Fbd47cdf584a1ca615e373b66f19b1f2ff54360e9e79d40fe88ebeba5b5ffd64d_003FSR_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
+  &lt;PhysicalFolder Path="F:\Programare\Dotnet\mocasin\MDA" Loaded="True" /&gt;&#xD;
+&lt;/AssemblyExplorer&gt;</s:String>
 	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">C:\Users\Ionut\AppData\Local\JetBrains\Rider2024.3\resharper-host\temp\Rider\vAny\CoverageData\_MDA.-118465636\Snapshot\snapshot.utdcvr</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=24e8c673_002D2e2e_002D4797_002D9f43_002D671dd0129a39/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Execute_For_AllComponents #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;Project Location="F:\Programare\Dotnet\mocasin\MDA.Tests" Presentation="&amp;lt;MDA.Tests&amp;gt;" /&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=3544c80a_002Dfcf2_002D48df_002Da70e_002D7d57a8cad1bc/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="InterpreterTests #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::9E2B8586-0AB0-49ED-98BE-9F9C55CC6EBC::net9.0::MDA.Tests.Unit.Interpreter.InterpreterTests&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=3faa9281_002D6b64_002D4f9c_002D8ac8_002Da147a9792574/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="TokenizationTests #4" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;xUnit::9E2B8586-0AB0-49ED-98BE-9F9C55CC6EBC::net9.0::MDA.Tests.Unit.Scanner.TokenizationTests&lt;/TestId&gt;&#xD;
@@ -15,6 +29,14 @@
     &lt;TestId&gt;xUnit::9E2B8586-0AB0-49ED-98BE-9F9C55CC6EBC::net9.0::MDA.Tests.Unit.Parser.ComplexProgramParsingTest&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::9E2B8586-0AB0-49ED-98BE-9F9C55CC6EBC::net9.0::MDA.Tests.Unit.Interpreter.InterpreterTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=677ee98f_002Dc8e6_002D4774_002D8622_002D4c12e028d6da/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="InterpreterTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::9E2B8586-0AB0-49ED-98BE-9F9C55CC6EBC::net9.0::MDA.Tests.Unit.Interpreter.InterpreterTests&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=8e663e49_002D1976_002D4c1b_002D91f7_002Dff069c4b31e2/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Execute_Print_OutputsValue" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;ProjectFolder&gt;9E2B8586-0AB0-49ED-98BE-9F9C55CC6EBC/d:Unit&lt;/ProjectFolder&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=9fb2f33b_002D3a86_002D4398_002Db291_002Db4110728440d/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="TokenizationTests #3" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
@@ -30,12 +52,20 @@
     &lt;TestId&gt;xUnit::9E2B8586-0AB0-49ED-98BE-9F9C55CC6EBC::net9.0::MDA.Tests.Unit.Parser.ExpressionParsingTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=dbd851f8_002Da97b_002D4f4e_002Da3bd_002D0e1a46e3165c/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="TokenizationTests #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=dbd851f8_002Da97b_002D4f4e_002Da3bd_002D0e1a46e3165c/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="TokenizationTests #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;xUnit::9E2B8586-0AB0-49ED-98BE-9F9C55CC6EBC::net9.0::MDA.Tests.Unit.Scanner.TokenizationTests&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::9E2B8586-0AB0-49ED-98BE-9F9C55CC6EBC::net9.0::MDA.Tests.Unit.Parser.ExpressionParsingTests.ParseBinaryExpression&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::9E2B8586-0AB0-49ED-98BE-9F9C55CC6EBC::net9.0::MDA.Tests.Unit.Parser.ExpressionParsingTests&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::9E2B8586-0AB0-49ED-98BE-9F9C55CC6EBC::net9.0::MDA.Tests.Unit.Parser.StatementParsingTests&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=dd7a45cb_002D46a2_002D41de_002D95f3_002D4077d6544d82/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from Unit" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;ProjectFolder&gt;9E2B8586-0AB0-49ED-98BE-9F9C55CC6EBC/d:Unit&lt;/ProjectFolder&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f02e7ef2_002D4e31_002D48c4_002D9d4c_002D7fb2b4c825cc/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Execute_For_AllComponents" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::9E2B8586-0AB0-49ED-98BE-9F9C55CC6EBC::net9.0::MDA.Tests.Unit.Interpreter.InterpreterTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Monitoring/StartMode/@EntryValue">OnDebug</s:String></wpf:ResourceDictionary>

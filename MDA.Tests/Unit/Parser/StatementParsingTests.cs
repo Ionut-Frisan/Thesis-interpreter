@@ -913,24 +913,17 @@ public class StatementParsingTests
         Assert.Equal("(return 1)", result);
     }
 
+    // Error Recovery
     // [Fact]
-    // public void ParseReturn_OutsideFunction_ThrowsError()
+    // public void ParseError_Synchronization()
     // {
-    //     // TODO: this is a resolver error
     //     throw new NotImplementedException();
     // }
-
-    // Error Recovery
-    [Fact]
-    public void ParseError_Synchronization()
-    {
-        throw new NotImplementedException();
-    }
-
-    [Fact]
-    public void ParseError_MissingTerminator()
-    {
-        throw new NotImplementedException();
-    }
+    //
+    // [Fact]
+    // public void ParseError_MissingTerminator()
+    // {
+    //     throw new NotImplementedException();
+    // }
     
 }

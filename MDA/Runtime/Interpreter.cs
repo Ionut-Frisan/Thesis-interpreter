@@ -3,7 +3,7 @@ namespace MDA;
 
 public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
 {
-    private readonly Environment _globals = new Environment();
+    private readonly Environment _globals = new();
     private Environment _environment;
     private readonly IDictionary<Expr, int> _locals = new Dictionary<Expr, int>();
     
@@ -78,9 +78,17 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     
     public object VisitSuperExpr(Expr.Super expr)
     {
-        int distance = _locals[expr];
-        MdaInstance obj = (MdaInstance)_environment.GetAt(distance - 1, "this");
-        object superclass = _environment.GetAt(distance, "super");
+        MdaInstance obj;
+        object superclass;
+        if (_locals.TryGetValue(expr, out int distance))
+        {
+            obj = (MdaInstance)_environment.GetAt(distance - 1, "this");
+            superclass = _environment.GetAt(distance, "super");
+        } else
+        {
+            obj = (MdaInstance)_environment.Get("this");
+            superclass = _environment.Get("super");
+        }
 
         if (superclass is NativeClass nativeSuperclass)
         {
@@ -482,7 +490,8 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         {
             return _environment.GetAt(distance, name.Lexeme);
         }
-        return _globals.Get(name);
+
+        return _environment.Get(name);
     }
 
     private void CheckNumberOperand(Token op, object operand)

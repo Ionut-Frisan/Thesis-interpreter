@@ -46,6 +46,18 @@ public class Environment
         throw new RuntimeError(name, $"Undefined variable '{name.Lexeme}'.");
     }
     
+    public object Get(string name)
+    {
+        if (_values.ContainsKey(name))
+        {
+            return _values[name]!;
+        }
+        
+        if (Enclosing != null) return Enclosing.Get(name);
+        
+        throw new RuntimeError(null, $"Undefined variable '{name}'.");
+    }
+    
     public object GetAt(int distance, string name)
     {
         return Ancestor(distance)._values[name]!;
