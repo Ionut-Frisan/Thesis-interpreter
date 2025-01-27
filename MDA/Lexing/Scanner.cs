@@ -35,7 +35,11 @@ public class Scanner
             { "var", TokenType.VAR },
             { "while", TokenType.WHILE },
             { "continue", TokenType.CONTINUE },
-            { "break", TokenType.BREAK }
+            { "break", TokenType.BREAK },
+            { "throw", TokenType.THROW },
+            { "try", TokenType.TRY },
+            { "catch", TokenType.CATCH },
+            { "finally", TokenType.FINALLY }
         };
     }
 

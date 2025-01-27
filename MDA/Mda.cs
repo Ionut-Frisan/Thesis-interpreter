@@ -115,4 +115,9 @@ public class Mda
     {
         ErrorReporter.RuntimeError(error);
     }
+
+    public static void RuntimeError(MdaThrowable error)
+    {
+        ErrorReporter.RuntimeError(error);
+    }
 }

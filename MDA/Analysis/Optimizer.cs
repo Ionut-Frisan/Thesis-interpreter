@@ -245,6 +245,33 @@ public class Optimizer : Expr.IVisitor<Expr>, Stmt.IVisitor<Stmt>
         Define(stmt.Name);
         return new Stmt.Var(stmt.Name, initializer);
     }
+    
+        
+    public Stmt VisitThrowStmt(Stmt.Throw stmt)
+    {
+        Expr value = Optimize(stmt.Value);
+        return new Stmt.Throw(stmt.Keyword, value);
+    }
+    
+    public Stmt VisitTryStmt(Stmt.Try stmt)
+    {
+        Stmt.Block block = new Stmt.Block(stmt.TryBlock.Statements.Select(Optimize).ToList());
+        CatchClause? catchClause = null;
+        Stmt.Block? finallyBlock = null;
+        
+        if (stmt.CatchClause != null)
+        {
+            Stmt.Block catchBlock = new Stmt.Block(stmt.CatchClause.Block.Statements.Select(Optimize).ToList());
+            catchClause = new CatchClause(stmt.CatchClause?.Variable, catchBlock);
+        }
+        
+        if (stmt.FinallyBlock != null)
+        {
+            finallyBlock = new Stmt.Block(stmt.FinallyBlock.Statements.Select(Optimize).ToList());
+        }
+        
+        return new Stmt.Try(block, catchClause, finallyBlock);
+    }
 
     public Expr VisitListExpr(Expr.List expr)
     {

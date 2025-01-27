@@ -7,5 +7,6 @@ public interface IErrorReporter
     void Error(Token token, string message);
     void Error(int line, int column, string message);
     void RuntimeError(RuntimeError error);
+    void RuntimeError(MdaThrowable error);
     void Reset();
 }

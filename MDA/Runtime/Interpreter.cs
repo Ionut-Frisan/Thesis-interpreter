@@ -1,4 +1,6 @@
 using MDA.Builtins;
+using MDA.Errors;
+
 namespace MDA;
 
 public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
@@ -39,6 +41,10 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
             }
         }
         catch (RuntimeError error)
+        {
+            Mda.RuntimeError(error);
+        }
+        catch (MdaThrowable error)
         {
             Mda.RuntimeError(error);
         }
@@ -483,6 +489,61 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         ((MdaList)list).Set(idx, value);
         return value;
     }
+
+    public object VisitTryStmt(Stmt.Try stmt)
+    {
+        try
+        {
+            ExecuteBlock(stmt.TryBlock.Statements, new Environment(_environment));
+        }
+        catch (MdaThrowable e)
+        {
+            if (stmt.CatchClause != null)
+            {
+                Environment environment = new Environment(_environment);
+                if (stmt.CatchClause.Variable != null)
+                {
+                    environment.Define(stmt.CatchClause.Variable!.Lexeme, e.Instance);
+                }
+
+                ExecuteBlock(stmt.CatchClause.Block.Statements, environment);
+            }
+            else
+            {
+                throw e;
+            }
+        }
+        finally
+        {
+            if (stmt.FinallyBlock != null)
+            {
+                ExecuteBlock(stmt.FinallyBlock.Statements, new Environment(_environment));
+            }
+            
+        }
+
+        return null;
+    }
+    
+    public object VisitThrowStmt(Stmt.Throw stmt)
+    {
+        object value = Evaluate(stmt.Value);
+        if (value is MdaInstance instance && isErrorInstance(instance))
+        {
+            if (instance.Get("message") is string message)
+            {
+                throw new MdaThrowable(instance, stmt.Keyword, message);
+            }
+            else
+            {
+                throw new RuntimeError(stmt.Keyword, "Error message must be a string.");
+            }
+        } 
+        else
+        {
+            throw new RuntimeError(stmt.Keyword, ErrorResolver.Resolve("Can only throw Error instances."));
+        }
+    }
     
     private object LookupVariable(Token name, Expr expr)
     {
@@ -544,5 +605,17 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         {
             _environment = previous;
         }
+    }
+
+    private bool isErrorInstance(MdaInstance instance)
+    {
+        MdaClass? klass = instance.Klass;
+        while (klass != null)
+        {
+            if (klass.Name.Equals("Error")) return true;
+            klass = klass.Superclass;
+        }
+
+        return false;
     }
 }

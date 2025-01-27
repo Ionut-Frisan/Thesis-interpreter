@@ -45,6 +45,21 @@ public class ErrorReporter: IErrorReporter
 
         _exitHandler(70);
     }
+    
+    public void RuntimeError(MdaThrowable error)
+    {
+        HadRuntimeError = true;
+        Token? token = error.Token;
+        MdaInstance instance = error.Instance;
+        if (token == null)
+        {
+            Console.Error.WriteLine($"[{instance.Klass.Name}]: {error.Message}");
+        }
+        else
+        {
+            Console.Error.WriteLine($"[line {token.Line}:{token.Column}] {instance.Klass.Name}: {error.Message}");
+        }
+    }
 
     public void Reset()
     {

@@ -129,6 +129,25 @@ returnStmt     → "return" expression? ";" ;
   ```plaintext
   continueStmt   → "continue" ";" ;
   ```
+#### Exception Handling Control Flow Statements
+- **Try Statements**: Handle exceptions.
+  ```plaintext
+  tryStmt        → "try" block ( catchClause )? finallyClause?
+                 | "try" block finallyClause
+                 | "try" block catchClause ;
+  ```
+- **Catch Clauses**: Handle specific exceptions.
+  ```plaintext
+  catchClause    → "catch" "(" IDENTIFIER ")" block ;
+  ```
+- **Finally Clauses**: Execute code regardless of exceptions.
+  ```plaintext
+  finallyClause  → "finally" block ;
+  ```
+- **Throw Statements**: Throw an exception.
+  ```plaintext
+  throwStmt      → "throw" expression ";" ;
+  ```
 
 ### **Blocks**
 Group multiple declarations or statements.
@@ -224,8 +243,20 @@ statement      → exprStmt
                | whileStmt
                | breakStmt
                | continueStmt
-               | block ;
-               
+               | block
+               | tryStmt
+               | throwStmt ;
+
+throwStmt      → "throw" expression ";" ;
+
+tryStmt        → "try" block ( catchClause )? finallyClause?
+               | "try" block finallyClause
+               | "try" block catchClause ;
+
+finallyClause  → "finally" block ;
+
+catchClause    → "catch" "(" IDENTIFIER ")" block ;
+ 
 returnStmt     -> "return" expression? ";" ;
 
 breakStmt      → "break" ";" ;
