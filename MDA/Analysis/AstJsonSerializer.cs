@@ -195,6 +195,30 @@ public class AstJsonSerializer : Expr.IVisitor<object>, Stmt.IVisitor<object>
             body = stmt.Body.Accept(this)
         };
     }
+    
+    public object VisitThrowStmt(Stmt.Throw stmt)
+    {
+        return new
+        {
+            type = "Throw",
+            value = stmt.Value.Accept(this),
+        };
+    }
+
+    public object VisitTryStmt(Stmt.Try stmt)
+    {
+        return new
+        {
+            type = "Try",
+            tryBlock = stmt.TryBlock.Accept(this),
+            CatchClause = new
+            {
+                Variable = stmt.CatchClause?.Variable.Lexeme,
+                Block = stmt.CatchClause?.Block.Accept(this),
+            },
+            finallyBlock = stmt.FinallyBlock?.Accept(this)
+        };
+    }
 
     public object VisitGetExpr(Expr.Get expr)
     {

@@ -17,6 +17,8 @@ public abstract class Stmt {
         T VisitContinueStmt(Continue stmt);
         T VisitVarStmt(Var stmt);
         T VisitWhileStmt(While stmt);
+        T VisitThrowStmt(Throw stmt);
+        T VisitTryStmt(Try stmt);
     }
 
     public class Block : Stmt {
@@ -169,6 +171,36 @@ public abstract class Stmt {
         public Expr Condition { get; set; }
         public Stmt Body { get; set; }
         public Expr? Increment { get; set; }
+    }
+
+    public class Throw : Stmt {
+        public Throw(Token keyword, Expr value) {
+            this.Keyword = keyword;
+            this.Value = value;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitThrowStmt(this);
+        }
+
+        public Token Keyword { get; set; }
+        public Expr Value { get; set; }
+    }
+
+    public class Try : Stmt {
+        public Try(Stmt.Block tryBlock, CatchClause? catchClause, Stmt.Block? finallyBlock) {
+            this.TryBlock = tryBlock;
+            this.CatchClause = catchClause;
+            this.FinallyBlock = finallyBlock;
+        }
+
+        public override T Accept<T>(IVisitor<T> visitor) {
+            return visitor.VisitTryStmt(this);
+        }
+
+        public Stmt.Block TryBlock { get; set; }
+        public CatchClause? CatchClause { get; set; }
+        public Stmt.Block? FinallyBlock { get; set; }
     }
 
 

@@ -294,6 +294,40 @@ public class Resolver : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         Resolve(expr.Value);
         return null;
     }
+
+    public object? VisitThrowStmt(Stmt.Throw stmt)
+    {
+        Resolve(stmt.Value);
+        return null;
+    }
+
+    public object? VisitTryStmt(Stmt.Try stmt)
+    {
+        BeginScope();
+        Resolve(stmt.TryBlock.Statements);
+        EndScope();
+
+        if (stmt.CatchClause != null)
+        {
+            if (stmt.CatchClause.Variable != null)
+            {
+                Declare(stmt.CatchClause.Variable);
+                Define(stmt.CatchClause.Variable);
+            }
+            BeginScope();
+            Resolve(stmt.CatchClause.Block.Statements);
+            EndScope();
+        }
+        
+        if (stmt.FinallyBlock != null)
+        {
+            BeginScope();
+            Resolve(stmt.FinallyBlock.Statements);
+            EndScope();
+        }
+        
+        return null;
+    }
     
     public void Resolve(List<Stmt> statements)
     {

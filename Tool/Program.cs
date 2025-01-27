@@ -41,7 +41,9 @@ public class GenerateAst
             "Break       : Token keyword",
             "Continue    : Token keyword",
             "Var         : Token name, Expr? initializer",
-            "While       : Expr condition, Stmt body, Expr? increment"
+            "While       : Expr condition, Stmt body, Expr? increment",
+            "Throw       : Token keyword, Expr value",
+            "Try         : Stmt.Block tryBlock, CatchClause? catchClause, Stmt.Block? finallyBlock"
         });
     }
 

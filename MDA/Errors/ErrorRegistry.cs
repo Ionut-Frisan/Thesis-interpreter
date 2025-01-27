@@ -366,6 +366,69 @@ public class ErrorRegistry
                 "Closing bracket is expected after list index."
             )
         },
+        {
+            "PS039", new Error(
+                "PS039",
+                "Expected '{' after 'try'.",
+                ErrorCategory.PARSER,
+                ErrorLevel.ERROR,
+                "Opening curly brace is expected after 'try' keyword."
+            )
+        },
+        {
+            "PS040", new Error(
+                "PS040",
+                "Expected '(' after 'catch'.",
+                ErrorCategory.PARSER,
+                ErrorLevel.ERROR,
+                "Opening parenthesis is expected after 'catch' keyword."
+            )
+        },
+        {
+            "PS041", new Error(
+                "PS041",
+                "Expected variable name after '(' in 'catch'.",
+                ErrorCategory.PARSER,
+                ErrorLevel.ERROR,
+                "A variable name is expected after 'catch' keyword."
+            )
+        },
+        {
+            "PS042", new Error(
+                "PS042",
+                "Expected ')' after 'catch' variable name.",
+                ErrorCategory.PARSER,
+                ErrorLevel.ERROR,
+                "Closing parenthesis is expected after 'catch' variable name."
+            )
+        },
+        {
+            "PS043", new Error(
+                "PS043",
+                "Expected '{' after 'catch' variable name.",
+                ErrorCategory.PARSER,
+                ErrorLevel.ERROR,
+                "Opening curly brace is expected after 'catch' variable name."
+            )
+        },
+        {
+            "PS044", new Error(
+                "PS044",
+                "Expected '{' after 'finally'.",
+                ErrorCategory.PARSER,
+                ErrorLevel.ERROR,
+                "Opening curly brace is expected after 'finally' keyword."
+            )
+        },
+        {
+            "PS045", new Error(
+                "PS045",
+                "Expect ';' after 'throw' value.",
+                ErrorCategory.PARSER,
+                ErrorLevel.ERROR,
+                "Semicolon is expected after 'throw' value."
+            )
+        },
         
         // Resolver errors
         {
