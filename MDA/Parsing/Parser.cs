@@ -637,8 +637,6 @@ public class Parser
 
     public Stmt TryStatement()
     {
-        var keyword = Previous();
-        
         Consume(TokenType.LEFT_BRACE, "PS039");
         Stmt.Block tryBlock = new Stmt.Block(Block());
         CatchClause? catchClause = null;
@@ -667,7 +665,7 @@ public class Parser
         
         if (finallyBlock == null && catchClause == null)
         {
-            Error(keyword, "PS045");
+            Error(Peek(), "PS045");
         }
 
         return new Stmt.Try(tryBlock, catchClause, finallyBlock);
