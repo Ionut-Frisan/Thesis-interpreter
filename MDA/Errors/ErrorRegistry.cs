@@ -423,6 +423,15 @@ public class ErrorRegistry
         {
             "PS045", new Error(
                 "PS045",
+                "At least one of 'catch' or 'finally' is expected after 'try'.",
+                ErrorCategory.PARSER,
+                ErrorLevel.ERROR,
+                "At least one of 'catch' or 'finally' is expected after 'try' keyword."
+            )
+        },
+        {
+            "PS046", new Error(
+                "PS046",
                 "Expect ';' after 'throw' value.",
                 ErrorCategory.PARSER,
                 ErrorLevel.ERROR,

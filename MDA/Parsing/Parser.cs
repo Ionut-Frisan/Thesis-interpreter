@@ -637,9 +637,12 @@ public class Parser
 
     public Stmt TryStatement()
     {
+        var keyword = Previous();
+        
         Consume(TokenType.LEFT_BRACE, "PS039");
         Stmt.Block tryBlock = new Stmt.Block(Block());
         CatchClause? catchClause = null;
+        
         if (Match(TokenType.CATCH))
         {
             Consume(TokenType.LEFT_PAREN, "PS040");
@@ -661,6 +664,11 @@ public class Parser
             Consume(TokenType.LEFT_BRACE, "PS044");
             finallyBlock = new(Block());
         }
+        
+        if (finallyBlock == null && catchClause == null)
+        {
+            Error(keyword, "PS045");
+        }
 
         return new Stmt.Try(tryBlock, catchClause, finallyBlock);
     }
@@ -669,7 +677,7 @@ public class Parser
     {
         Token keyword = Previous();
         Expr value = Expression();
-        Consume(TokenType.SEMICOLON, "PS045");
+        Consume(TokenType.SEMICOLON, "PS046");
         return new Stmt.Throw(keyword, value);
     }
     
