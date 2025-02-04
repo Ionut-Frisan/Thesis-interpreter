@@ -19,6 +19,15 @@ MDA is a programming language implemented with a recursive tree-walking interpre
 - Break and continue statements
 - Logical operators (`and`, `or`, `!`)
 - Comparison operators (`==`, `!=`, `<`, `<=`, `>`, `>=`)
+- Block scoping with `{}`
+
+### Exception Handling
+- Try-catch blocks for error handling
+- Finally blocks for cleanup code
+- Custom error classes through inheritance
+- Throw statements for error propagation
+- Type checking with `is` operator
+- Built-in `Error` base class
 
 ### Functions
 - First-class functions
@@ -45,6 +54,25 @@ MDA is a programming language implemented with a recursive tree-walking interpre
 - String concatenation with `+`
 
 ## Code Examples
+
+### Exception Handling
+```mda
+class MyCustomError < Error {}
+
+fun throwsError() {
+    throw MyCustomError("Nice error here");
+}
+
+try {
+    throwsError();
+} catch (e) {
+    if (is(e, MyCustomError)) {
+        print "MyCustomError was caught";
+    }
+} finally {
+    print "executed in finally";
+}
+```
 
 ### Lists and List Operations
 ```mda
@@ -131,7 +159,6 @@ fun countDown(start) {
     }
 }
 ```
-
 
 ### Basic Data Structures
 
