@@ -168,6 +168,44 @@ public class AstPrinter : Expr.IVisitor<string>, Stmt.IVisitor<string>
         return Parenthesize("while", stmt.Condition, stmt.Body);
     }
     
+    public string VisitClassStmt(Stmt.Class stmt)
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.Append("(class ").Append(stmt.Name.Lexeme);
+        if (stmt.Superclass != null)
+        {
+            builder.Append(" < ").Append(stmt.Superclass.Name.Lexeme);
+        }
+        builder.Append(" ");
+        foreach (var method in stmt.Methods)
+        {
+            builder.Append(method.Accept(this));
+        }
+        builder.Append(")");
+        return builder.ToString();
+    }
+    
+    public string VisitThrowStmt(Stmt.Throw stmt)
+    {
+        return Parenthesize("throw", stmt.Value);
+    }
+    
+    public string VisitTryStmt(Stmt.Try stmt)
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.Append("(try ").Append(stmt.TryBlock.Accept(this));
+        if (stmt.CatchClause != null)
+        {
+            builder.Append(" catch ").Append(stmt.CatchClause.Block.Accept(this));
+        }
+        if (stmt.FinallyBlock != null)
+        {
+            builder.Append(" finally ").Append(stmt.FinallyBlock.Accept(this));
+        }
+        builder.Append(")");
+        return builder.ToString();
+    }
+    
     public string VisitGetExpr(Expr.Get expr)
     {
         return Parenthesize("get", expr.Obj, expr.Name.Lexeme);
@@ -186,23 +224,6 @@ public class AstPrinter : Expr.IVisitor<string>, Stmt.IVisitor<string>
     public string VisitSuperExpr(Expr.Super expr)
     {
         return Parenthesize("super", expr.Keyword.Lexeme, expr.Method.Lexeme);
-    }
-    
-    public string VisitClassStmt(Stmt.Class stmt)
-    {
-        StringBuilder builder = new StringBuilder();
-        builder.Append("(class ").Append(stmt.Name.Lexeme);
-        if (stmt.Superclass != null)
-        {
-            builder.Append(" < ").Append(stmt.Superclass.Name.Lexeme);
-        }
-        builder.Append(" ");
-        foreach (var method in stmt.Methods)
-        {
-            builder.Append(method.Accept(this));
-        }
-        builder.Append(")");
-        return builder.ToString();
     }
     
     public string VisitListExpr(Expr.List expr)

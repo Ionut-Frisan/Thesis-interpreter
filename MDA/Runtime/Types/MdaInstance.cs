@@ -22,6 +22,19 @@ public class MdaInstance
         
         throw new RuntimeError(name, $"Undefined property '{name.Lexeme}' on {this}'.");
     }
+
+    public object Get(string name)
+    {
+        if (fields.ContainsKey(name))
+        {
+            return fields[name]!;
+        }
+
+        MdaFunction method = Klass.FindMethod(name);
+        if (method != null) return method.Bind(this);
+        
+        throw new RuntimeError(null, $"Undefined property '{name}' on {this}'.");
+    }
     
     public void Set(Token name, object value)
     {

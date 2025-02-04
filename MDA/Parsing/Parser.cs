@@ -98,6 +98,8 @@ public class Parser
         if (Match(TokenType.CONTINUE)) return ContinueStatement();
         if (Match(TokenType.BREAK)) return BreakStatement();
         if (Match(TokenType.WHILE)) return WhileStatement();
+        if (Match(TokenType.TRY)) return TryStatement();
+        if (Match(TokenType.THROW)) return ThrowStatement();
         if (Match(TokenType.LEFT_BRACE)) return new Stmt.Block(Block());
 
         return ExpressionStatement();
@@ -631,6 +633,50 @@ public class Parser
         }
 
         return new Expr.ListAccess(list, index, bracket);
+    }
+
+    public Stmt TryStatement()
+    {
+        Consume(TokenType.LEFT_BRACE, "PS039");
+        Stmt.Block tryBlock = new Stmt.Block(Block());
+        CatchClause? catchClause = null;
+        
+        if (Match(TokenType.CATCH))
+        {
+            Consume(TokenType.LEFT_PAREN, "PS040");
+            Token? variable = null;
+            if (!Match(TokenType.RIGHT_PAREN))
+            {
+                variable = Consume(TokenType.IDENTIFIER, "PS041");   
+            }
+
+            Consume(TokenType.RIGHT_PAREN, "PS042");
+            Consume(TokenType.LEFT_BRACE, "PS043");
+            List<Stmt> catchBlock = Block();
+            catchClause = new CatchClause(variable, new Stmt.Block(catchBlock));
+        }
+        
+        Stmt.Block? finallyBlock = null;
+        if (Match(TokenType.FINALLY))
+        {
+            Consume(TokenType.LEFT_BRACE, "PS044");
+            finallyBlock = new(Block());
+        }
+        
+        if (finallyBlock == null && catchClause == null)
+        {
+            Error(Peek(), "PS045");
+        }
+
+        return new Stmt.Try(tryBlock, catchClause, finallyBlock);
+    }
+
+    public Stmt ThrowStatement()
+    {
+        Token keyword = Previous();
+        Expr value = Expression();
+        Consume(TokenType.SEMICOLON, "PS046");
+        return new Stmt.Throw(keyword, value);
     }
     
     /*

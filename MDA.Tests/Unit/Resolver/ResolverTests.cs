@@ -25,6 +25,12 @@ public class ResolverTests
             HadRuntimeError = true;
             LastErrorMessage = error.Message;
         }
+        
+        public void RuntimeError(MdaThrowable error)
+        {
+            HadRuntimeError = true;
+            LastErrorMessage = error.Message;
+        }
 
         public void Reset()
         {

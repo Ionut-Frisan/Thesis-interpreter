@@ -59,6 +59,10 @@ public enum TokenType
     WHILE,
     CONTINUE,
     BREAK,
+    THROW,
+    TRY,
+    CATCH,
+    FINALLY,
 
     // End of file
     EOF

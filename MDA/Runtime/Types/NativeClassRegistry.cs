@@ -14,6 +14,7 @@ public static class NativeClassRegistry
         Register(new ConsoleClass());
         Register(new MathClass());
         Register(new RandomClass());
+        Register(new ErrorClass());
     }
     
     /*

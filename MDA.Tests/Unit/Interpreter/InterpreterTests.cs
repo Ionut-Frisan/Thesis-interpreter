@@ -2,6 +2,54 @@ namespace MDA.Tests.Unit.Interpreter;
 
 public class InterpreterTests
 {
+    private class TestErrorReporter : IErrorReporter
+    {
+        public bool HadError { get; private set; }
+        public bool HadRuntimeError { get; private set; }
+        public string? LastErrorMessage { get; private set; }
+
+        public void Error(Token token, string message)
+        {
+            HadError = true;
+            LastErrorMessage = message;
+        }
+
+        public void Error(int line, int column, string message)
+        {
+            HadError = true;
+            LastErrorMessage = message;
+        }
+
+        public void RuntimeError(RuntimeError error)
+        {
+            HadRuntimeError = true;
+            LastErrorMessage = error.Message;
+        }
+
+        public void RuntimeError(MdaThrowable error)
+        {
+            HadRuntimeError = true;
+            LastErrorMessage = error.Message;
+        }
+
+        public void Reset()
+        {
+            HadError = false;
+            HadRuntimeError = false;
+            LastErrorMessage = null;
+        }
+    }
+
+    private TestErrorReporter _errorReporter;
+    private MDA.Interpreter _interpreter;
+
+    public InterpreterTests()
+    {
+        _errorReporter = new TestErrorReporter();
+        _interpreter = new MDA.Interpreter();
+        Mda.SetErrorReporter(_errorReporter);
+    }
+
     // Literal Evaluation
     [Fact]
     public void Evaluate_NumberLiteral()
@@ -2822,13 +2870,13 @@ public class InterpreterTests
     public void Execute_NestedBlockScoping()
     {
         var interpreter = new MDA.Interpreter();
-        
+
         var globalVar = new Stmt.Var(
             new Token(TokenType.IDENTIFIER, "x", "x", 1, 1),
             new Expr.Literal(1.0)
         );
         globalVar.Accept(interpreter);
-        
+
         // Create nested blocks with shadowing
         var stmt = new Stmt.Block(new List<Stmt>
         {
@@ -3064,23 +3112,24 @@ public class InterpreterTests
     public void Execute_ListCreation()
     {
         var interpreter = new MDA.Interpreter();
-        
+
         // Create list and assign to variable
         var createList = new Stmt.Var(
             new Token(TokenType.IDENTIFIER, "list", null, 1, 1),
-            new Expr.List(new List<Expr> { 
+            new Expr.List(new List<Expr>
+            {
                 new Expr.Literal(1.0),
                 new Expr.Literal(2.0),
                 new Expr.Literal(3.0)
             })
         );
-        
+
         interpreter.Interpret(new List<Stmt> { createList });
-        
+
         // Get list through variable
         var getList = new Expr.Variable(new Token(TokenType.IDENTIFIER, "list", null, 2, 1));
         var result = getList.Accept(interpreter);
-        
+
         Assert.IsType<MdaList>(result);
         Assert.Equal("[1, 2, 3]", result.ToString());
     }
@@ -3089,19 +3138,20 @@ public class InterpreterTests
     public void Execute_ListAccess()
     {
         var interpreter = new MDA.Interpreter();
-        
+
         // Create list and assign to variable
         var createList = new Stmt.Var(
             new Token(TokenType.IDENTIFIER, "list", null, 1, 1),
-            new Expr.List(new List<Expr> { 
+            new Expr.List(new List<Expr>
+            {
                 new Expr.Literal(1.0),
                 new Expr.Literal(2.0),
                 new Expr.Literal(3.0)
             })
         );
-        
+
         interpreter.Interpret(new List<Stmt> { createList });
-        
+
         // Access list element
         var access = new Expr.ListAccess(
             new Expr.Variable(new Token(TokenType.IDENTIFIER, "list", null, 2, 1)),
@@ -3117,19 +3167,20 @@ public class InterpreterTests
     public void Execute_ListAssignment()
     {
         var interpreter = new MDA.Interpreter();
-        
+
         // Create list and assign to variable
         var createList = new Stmt.Var(
             new Token(TokenType.IDENTIFIER, "list", null, 1, 1),
-            new Expr.List(new List<Expr> { 
+            new Expr.List(new List<Expr>
+            {
                 new Expr.Literal(1.0),
                 new Expr.Literal(2.0),
                 new Expr.Literal(3.0)
             })
         );
-        
+
         interpreter.Interpret(new List<Stmt> { createList });
-        
+
         // Assign to list element
         var assign = new Expr.ListAssign(
             new Expr.Variable(new Token(TokenType.IDENTIFIER, "list", null, 2, 1)),
@@ -3140,7 +3191,7 @@ public class InterpreterTests
 
         var result = assign.Accept(interpreter);
         Assert.Equal(5.0, result);
-        
+
         // Verify assignment
         var access = new Expr.ListAccess(
             new Expr.Variable(new Token(TokenType.IDENTIFIER, "list", null, 3, 1)),
@@ -3154,15 +3205,15 @@ public class InterpreterTests
     public void Execute_ListMethods_Push()
     {
         var interpreter = new MDA.Interpreter();
-        
+
         // Create empty list
         var createList = new Stmt.Var(
             new Token(TokenType.IDENTIFIER, "list", null, 1, 1),
             new Expr.List(new List<Expr>())
         );
-        
+
         interpreter.Interpret(new List<Stmt> { createList });
-        
+
         // Push values using method calls
         var pushCall1 = new Stmt.Expression(new Expr.Call(
             new Expr.Get(
@@ -3172,7 +3223,7 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 2, 1),
             new List<Expr> { new Expr.Literal(1.0) }
         ));
-        
+
         var pushCall2 = new Stmt.Expression(new Expr.Call(
             new Expr.Get(
                 new Expr.Variable(new Token(TokenType.IDENTIFIER, "list", null, 3, 1)),
@@ -3181,9 +3232,9 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 3, 1),
             new List<Expr> { new Expr.Literal(2.0) }
         ));
-        
+
         interpreter.Interpret(new List<Stmt> { pushCall1, pushCall2 });
-        
+
         // Verify list state
         var toStringCall = new Expr.Call(
             new Expr.Get(
@@ -3193,7 +3244,7 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 4, 1),
             new List<Expr>()
         );
-        
+
         Assert.Equal("[1, 2]", toStringCall.Accept(interpreter));
     }
 
@@ -3201,18 +3252,19 @@ public class InterpreterTests
     public void Execute_ListMethods_Pop()
     {
         var interpreter = new MDA.Interpreter();
-        
+
         // Create list with values
         var createList = new Stmt.Var(
             new Token(TokenType.IDENTIFIER, "list", null, 1, 1),
-            new Expr.List(new List<Expr> { 
+            new Expr.List(new List<Expr>
+            {
                 new Expr.Literal(1.0),
                 new Expr.Literal(2.0)
             })
         );
-        
+
         interpreter.Interpret(new List<Stmt> { createList });
-        
+
         // Pop value
         var popCall = new Expr.Call(
             new Expr.Get(
@@ -3222,10 +3274,10 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 2, 1),
             new List<Expr>()
         );
-        
+
         var result = popCall.Accept(interpreter);
         Assert.Equal(2.0, result);
-        
+
         // Verify list state
         var toStringCall = new Expr.Call(
             new Expr.Get(
@@ -3235,7 +3287,7 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 3, 1),
             new List<Expr>()
         );
-        
+
         Assert.Equal("[1]", toStringCall.Accept(interpreter));
     }
 
@@ -3243,18 +3295,19 @@ public class InterpreterTests
     public void Execute_ListMethods_Length()
     {
         var interpreter = new MDA.Interpreter();
-        
+
         // Create list with values
         var createList = new Stmt.Var(
             new Token(TokenType.IDENTIFIER, "list", null, 1, 1),
-            new Expr.List(new List<Expr> { 
+            new Expr.List(new List<Expr>
+            {
                 new Expr.Literal(1.0),
                 new Expr.Literal(2.0)
             })
         );
-        
+
         interpreter.Interpret(new List<Stmt> { createList });
-        
+
         // Get length
         var lengthCall = new Expr.Call(
             new Expr.Get(
@@ -3264,7 +3317,7 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 2, 1),
             new List<Expr>()
         );
-        
+
         var result = lengthCall.Accept(interpreter);
         Assert.Equal(2.0, result);
     }
@@ -3273,19 +3326,20 @@ public class InterpreterTests
     public void Execute_ListMethods_Sort()
     {
         var interpreter = new MDA.Interpreter();
-        
+
         // Create list with unsorted values
         var createList = new Stmt.Var(
             new Token(TokenType.IDENTIFIER, "list", null, 1, 1),
-            new Expr.List(new List<Expr> { 
+            new Expr.List(new List<Expr>
+            {
                 new Expr.Literal(3.0),
                 new Expr.Literal(1.0),
                 new Expr.Literal(2.0)
             })
         );
-        
+
         interpreter.Interpret(new List<Stmt> { createList });
-        
+
         // Sort list
         var sortCall = new Stmt.Expression(new Expr.Call(
             new Expr.Get(
@@ -3295,9 +3349,9 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 2, 1),
             new List<Expr>()
         ));
-        
+
         interpreter.Interpret(new List<Stmt> { sortCall });
-        
+
         // Verify list state
         var toStringCall = new Expr.Call(
             new Expr.Get(
@@ -3307,7 +3361,7 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 3, 1),
             new List<Expr>()
         );
-        
+
         Assert.Equal("[1, 2, 3]", toStringCall.Accept(interpreter));
     }
 
@@ -3315,19 +3369,20 @@ public class InterpreterTests
     public void Execute_ListMethods_Reverse()
     {
         var interpreter = new MDA.Interpreter();
-        
+
         // Create list with values
         var createList = new Stmt.Var(
             new Token(TokenType.IDENTIFIER, "list", null, 1, 1),
-            new Expr.List(new List<Expr> { 
+            new Expr.List(new List<Expr>
+            {
                 new Expr.Literal(1.0),
                 new Expr.Literal(2.0),
                 new Expr.Literal(3.0)
             })
         );
-        
+
         interpreter.Interpret(new List<Stmt> { createList });
-        
+
         // Reverse list
         var reverseCall = new Stmt.Expression(new Expr.Call(
             new Expr.Get(
@@ -3337,9 +3392,9 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 2, 1),
             new List<Expr>()
         ));
-        
+
         interpreter.Interpret(new List<Stmt> { reverseCall });
-        
+
         // Verify list state
         var toStringCall = new Expr.Call(
             new Expr.Get(
@@ -3349,7 +3404,7 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 3, 1),
             new List<Expr>()
         );
-        
+
         Assert.Equal("[3, 2, 1]", toStringCall.Accept(interpreter));
     }
 
@@ -3357,18 +3412,19 @@ public class InterpreterTests
     public void Execute_ListMethods_Contains()
     {
         var interpreter = new MDA.Interpreter();
-        
+
         // Create list with values
         var createList = new Stmt.Var(
             new Token(TokenType.IDENTIFIER, "list", null, 1, 1),
-            new Expr.List(new List<Expr> { 
+            new Expr.List(new List<Expr>
+            {
                 new Expr.Literal(1.0),
                 new Expr.Literal(2.0)
             })
         );
-        
+
         interpreter.Interpret(new List<Stmt> { createList });
-        
+
         // Test contains with existing value
         var containsCall1 = new Expr.Call(
             new Expr.Get(
@@ -3378,7 +3434,7 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 2, 1),
             new List<Expr> { new Expr.Literal(2.0) }
         );
-        
+
         // Test contains with non-existing value
         var containsCall2 = new Expr.Call(
             new Expr.Get(
@@ -3388,7 +3444,7 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 3, 1),
             new List<Expr> { new Expr.Literal(3.0) }
         );
-        
+
         Assert.True((bool)containsCall1.Accept(interpreter));
         Assert.False((bool)containsCall2.Accept(interpreter));
     }
@@ -3397,19 +3453,20 @@ public class InterpreterTests
     public void Execute_ListMethods_IndexOf()
     {
         var interpreter = new MDA.Interpreter();
-        
+
         // Create list with values
         var createList = new Stmt.Var(
             new Token(TokenType.IDENTIFIER, "list", null, 1, 1),
-            new Expr.List(new List<Expr> { 
+            new Expr.List(new List<Expr>
+            {
                 new Expr.Literal(1.0),
                 new Expr.Literal(2.0),
                 new Expr.Literal(2.0)
             })
         );
-        
+
         interpreter.Interpret(new List<Stmt> { createList });
-        
+
         // Test indexOf with existing value
         var indexOfCall1 = new Expr.Call(
             new Expr.Get(
@@ -3419,7 +3476,7 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 2, 1),
             new List<Expr> { new Expr.Literal(2.0) }
         );
-        
+
         // Test indexOf with non-existing value
         var indexOfCall2 = new Expr.Call(
             new Expr.Get(
@@ -3429,7 +3486,7 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 3, 1),
             new List<Expr> { new Expr.Literal(3.0) }
         );
-        
+
         Assert.Equal(1, indexOfCall1.Accept(interpreter));
         Assert.Equal(-1, indexOfCall2.Accept(interpreter));
     }
@@ -3438,19 +3495,20 @@ public class InterpreterTests
     public void Execute_ListMethods_LastIndexOf()
     {
         var interpreter = new MDA.Interpreter();
-        
+
         // Create list with values
         var createList = new Stmt.Var(
             new Token(TokenType.IDENTIFIER, "list", null, 1, 1),
-            new Expr.List(new List<Expr> { 
+            new Expr.List(new List<Expr>
+            {
                 new Expr.Literal(1.0),
                 new Expr.Literal(2.0),
                 new Expr.Literal(2.0)
             })
         );
-        
+
         interpreter.Interpret(new List<Stmt> { createList });
-        
+
         // Test lastIndexOf
         var lastIndexOfCall = new Expr.Call(
             new Expr.Get(
@@ -3460,7 +3518,7 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 2, 1),
             new List<Expr> { new Expr.Literal(2.0) }
         );
-        
+
         Assert.Equal(2, lastIndexOfCall.Accept(interpreter));
     }
 
@@ -3468,19 +3526,20 @@ public class InterpreterTests
     public void Execute_ListMethods_Remove()
     {
         var interpreter = new MDA.Interpreter();
-        
+
         // Create list with values
         var createList = new Stmt.Var(
             new Token(TokenType.IDENTIFIER, "list", null, 1, 1),
-            new Expr.List(new List<Expr> { 
+            new Expr.List(new List<Expr>
+            {
                 new Expr.Literal(1.0),
                 new Expr.Literal(2.0),
                 new Expr.Literal(2.0)
             })
         );
-        
+
         interpreter.Interpret(new List<Stmt> { createList });
-        
+
         // Remove first occurrence of 2
         var removeCall = new Expr.Call(
             new Expr.Get(
@@ -3490,10 +3549,10 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 2, 1),
             new List<Expr> { new Expr.Literal(2.0) }
         );
-        
+
         var result = removeCall.Accept(interpreter);
         Assert.True((bool)result);
-        
+
         // Verify list state
         var toStringCall = new Expr.Call(
             new Expr.Get(
@@ -3503,7 +3562,7 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 3, 1),
             new List<Expr>()
         );
-        
+
         Assert.Equal("[1, 2]", toStringCall.Accept(interpreter));
     }
 
@@ -3511,19 +3570,20 @@ public class InterpreterTests
     public void Execute_ListMethods_RemoveAll()
     {
         var interpreter = new MDA.Interpreter();
-        
+
         // Create list with values
         var createList = new Stmt.Var(
             new Token(TokenType.IDENTIFIER, "list", null, 1, 1),
-            new Expr.List(new List<Expr> { 
+            new Expr.List(new List<Expr>
+            {
                 new Expr.Literal(1.0),
                 new Expr.Literal(2.0),
                 new Expr.Literal(2.0)
             })
         );
-        
+
         interpreter.Interpret(new List<Stmt> { createList });
-        
+
         // Remove all occurrences of 2
         var removeAllCall = new Expr.Call(
             new Expr.Get(
@@ -3533,10 +3593,10 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 2, 1),
             new List<Expr> { new Expr.Literal(2.0) }
         );
-        
+
         var result = removeAllCall.Accept(interpreter);
         Assert.Equal(2, result);
-        
+
         // Verify list state
         var toStringCall = new Expr.Call(
             new Expr.Get(
@@ -3546,7 +3606,7 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 3, 1),
             new List<Expr>()
         );
-        
+
         Assert.Equal("[1]", toStringCall.Accept(interpreter));
     }
 
@@ -3554,18 +3614,19 @@ public class InterpreterTests
     public void Execute_ListMethods_InsertAt()
     {
         var interpreter = new MDA.Interpreter();
-        
+
         // Create list with values
         var createList = new Stmt.Var(
             new Token(TokenType.IDENTIFIER, "list", null, 1, 1),
-            new Expr.List(new List<Expr> { 
+            new Expr.List(new List<Expr>
+            {
                 new Expr.Literal(1.0),
                 new Expr.Literal(3.0)
             })
         );
-        
+
         interpreter.Interpret(new List<Stmt> { createList });
-        
+
         // Insert value at index 1
         var insertCall = new Expr.Call(
             new Expr.Get(
@@ -3575,9 +3636,9 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 2, 1),
             new List<Expr> { new Expr.Literal(1.0), new Expr.Literal(2.0) }
         );
-        
+
         insertCall.Accept(interpreter);
-        
+
         // Verify list state
         var toStringCall = new Expr.Call(
             new Expr.Get(
@@ -3587,7 +3648,7 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 3, 1),
             new List<Expr>()
         );
-        
+
         Assert.Equal("[1, 2, 3]", toStringCall.Accept(interpreter));
     }
 
@@ -3595,19 +3656,20 @@ public class InterpreterTests
     public void Execute_ListMethods_RemoveAt()
     {
         var interpreter = new MDA.Interpreter();
-        
+
         // Create list with values
         var createList = new Stmt.Var(
             new Token(TokenType.IDENTIFIER, "list", null, 1, 1),
-            new Expr.List(new List<Expr> { 
+            new Expr.List(new List<Expr>
+            {
                 new Expr.Literal(1.0),
                 new Expr.Literal(2.0),
                 new Expr.Literal(3.0)
             })
         );
-        
+
         interpreter.Interpret(new List<Stmt> { createList });
-        
+
         // Remove value at index 1
         var removeAtCall = new Expr.Call(
             new Expr.Get(
@@ -3617,9 +3679,9 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 2, 1),
             new List<Expr> { new Expr.Literal(1.0) }
         );
-        
+
         removeAtCall.Accept(interpreter);
-        
+
         // Verify list state
         var toStringCall = new Expr.Call(
             new Expr.Get(
@@ -3629,7 +3691,7 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 3, 1),
             new List<Expr>()
         );
-        
+
         Assert.Equal("[1, 3]", toStringCall.Accept(interpreter));
     }
 
@@ -3637,19 +3699,20 @@ public class InterpreterTests
     public void Execute_ListMethods_Sorted()
     {
         var interpreter = new MDA.Interpreter();
-        
+
         // Create list with unsorted values
         var createList = new Stmt.Var(
             new Token(TokenType.IDENTIFIER, "list", null, 1, 1),
-            new Expr.List(new List<Expr> { 
+            new Expr.List(new List<Expr>
+            {
                 new Expr.Literal(3.0),
                 new Expr.Literal(1.0),
                 new Expr.Literal(2.0)
             })
         );
-        
+
         interpreter.Interpret(new List<Stmt> { createList });
-        
+
         // Get sorted copy
         var sortedCall = new Expr.Call(
             new Expr.Get(
@@ -3659,15 +3722,15 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 2, 1),
             new List<Expr>()
         );
-        
+
         // Store sorted copy in new variable
         var storeSorted = new Stmt.Var(
             new Token(TokenType.IDENTIFIER, "sortedList", null, 3, 1),
             sortedCall
         );
-        
+
         interpreter.Interpret(new List<Stmt> { storeSorted });
-        
+
         // Verify original list is unchanged
         var toStringCall1 = new Expr.Call(
             new Expr.Get(
@@ -3677,7 +3740,7 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 4, 1),
             new List<Expr>()
         );
-        
+
         // Verify sorted list is sorted
         var toStringCall2 = new Expr.Call(
             new Expr.Get(
@@ -3687,7 +3750,7 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 5, 1),
             new List<Expr>()
         );
-        
+
         Assert.Equal("[3, 1, 2]", toStringCall1.Accept(interpreter));
         Assert.Equal("[1, 2, 3]", toStringCall2.Accept(interpreter));
     }
@@ -3696,23 +3759,25 @@ public class InterpreterTests
     public void Execute_ListMethods_Filtered()
     {
         var interpreter = new MDA.Interpreter();
-        
+
         // Create list with values
         var createList = new Stmt.Var(
             new Token(TokenType.IDENTIFIER, "list", null, 1, 1),
-            new Expr.List(new List<Expr> { 
+            new Expr.List(new List<Expr>
+            {
                 new Expr.Literal(1.0),
                 new Expr.Literal(2.0),
                 new Expr.Literal(3.0),
                 new Expr.Literal(4.0)
             })
         );
-        
+
         // Create filter function that keeps even numbers
         var createFilterFn = new Stmt.Function(
             new Token(TokenType.IDENTIFIER, "isEven", null, 2, 1),
             new List<Token> { new Token(TokenType.IDENTIFIER, "n", null, 2, 1) },
-            new List<Stmt> {
+            new List<Stmt>
+            {
                 new Stmt.Return(
                     new Token(TokenType.RETURN, "return", null, 2, 1),
                     new Expr.Binary(
@@ -3727,9 +3792,9 @@ public class InterpreterTests
                 )
             }
         );
-        
+
         interpreter.Interpret(new List<Stmt> { createList, createFilterFn });
-        
+
         // Get filtered copy
         var filteredCall = new Expr.Call(
             new Expr.Get(
@@ -3739,15 +3804,15 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 3, 1),
             new List<Expr> { new Expr.Variable(new Token(TokenType.IDENTIFIER, "isEven", null, 3, 1)) }
         );
-        
+
         // Store filtered copy in new variable
         var storeFiltered = new Stmt.Var(
             new Token(TokenType.IDENTIFIER, "filteredList", null, 4, 1),
             filteredCall
         );
-        
+
         interpreter.Interpret(new List<Stmt> { storeFiltered });
-        
+
         // Verify original list is unchanged
         var toStringCall1 = new Expr.Call(
             new Expr.Get(
@@ -3757,7 +3822,7 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 5, 1),
             new List<Expr>()
         );
-        
+
         // Verify filtered list contains only even numbers
         var toStringCall2 = new Expr.Call(
             new Expr.Get(
@@ -3767,7 +3832,7 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 6, 1),
             new List<Expr>()
         );
-        
+
         Assert.Equal("[1, 2, 3, 4]", toStringCall1.Accept(interpreter));
         Assert.Equal("[2, 4]", toStringCall2.Accept(interpreter));
     }
@@ -3776,26 +3841,29 @@ public class InterpreterTests
     public void Execute_ListMethods_CustomSort()
     {
         var interpreter = new MDA.Interpreter();
-        
+
         // Create list with values
         var createList = new Stmt.Var(
             new Token(TokenType.IDENTIFIER, "list", null, 1, 1),
-            new Expr.List(new List<Expr> { 
+            new Expr.List(new List<Expr>
+            {
                 new Expr.Literal(1.0),
                 new Expr.Literal(2.0),
                 new Expr.Literal(3.0),
                 new Expr.Literal(4.0)
             })
         );
-        
+
         // Create custom sort function that sorts in descending order
         var createSortFn = new Stmt.Function(
             new Token(TokenType.IDENTIFIER, "descendingSort", null, 2, 1),
-            new List<Token> { 
+            new List<Token>
+            {
                 new Token(TokenType.IDENTIFIER, "a", null, 2, 1),
                 new Token(TokenType.IDENTIFIER, "b", null, 2, 1)
             },
-            new List<Stmt> {
+            new List<Stmt>
+            {
                 new Stmt.Return(
                     new Token(TokenType.RETURN, "return", null, 2, 1),
                     new Expr.Binary(
@@ -3806,9 +3874,9 @@ public class InterpreterTests
                 )
             }
         );
-        
+
         interpreter.Interpret(new List<Stmt> { createList, createSortFn });
-        
+
         // Sort using custom sort function
         var customSortCall = new Stmt.Expression(new Expr.Call(
             new Expr.Get(
@@ -3818,9 +3886,9 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 3, 1),
             new List<Expr> { new Expr.Variable(new Token(TokenType.IDENTIFIER, "descendingSort", null, 3, 1)) }
         ));
-        
+
         interpreter.Interpret(new List<Stmt> { customSortCall });
-        
+
         // Verify list is sorted in descending order
         var toStringCall = new Expr.Call(
             new Expr.Get(
@@ -3830,7 +3898,406 @@ public class InterpreterTests
             new Token(TokenType.LEFT_PAREN, "(", null, 4, 1),
             new List<Expr>()
         );
-        
+
         Assert.Equal("[4, 3, 2, 1]", toStringCall.Accept(interpreter));
+    }
+
+    // Error handling
+    [Fact]
+    public void Execute_ThrowError()
+    {
+        var interpreter = new MDA.Interpreter();
+
+        var throwCall = new Stmt.Throw(
+            new Token(TokenType.THROW, "throw", null, 1, 1),
+            new Expr.Call(
+                new Expr.Variable(new Token(TokenType.IDENTIFIER, "Error", null, 1, 1)),
+                new Token(TokenType.LEFT_PAREN, "(", null, 1, 1),
+                new List<Expr>
+                {
+                    new Expr.Literal("Error message")
+                }
+            )
+        );
+
+        interpreter.Interpret(new List<Stmt> { throwCall });
+
+        // The interpreter should report an error for the thrown error
+        Assert.Equal("Error message", _errorReporter.LastErrorMessage);
+    }
+
+    [Fact]
+    public void Execute_CatchError()
+    {
+        var interpreter = new MDA.Interpreter();
+
+        var throwCall = new Stmt.Throw(
+            new Token(TokenType.THROW, "throw", null, 1, 1),
+            new Expr.Call(
+                new Expr.Variable(new Token(TokenType.IDENTIFIER, "Error", null, 1, 1)),
+                new Token(TokenType.LEFT_PAREN, "(", null, 1, 1),
+                new List<Expr>
+                {
+                    new Expr.Literal("Error message")
+                }
+            )
+        );
+
+        var tryCall = new Stmt.Try(
+            new Stmt.Block(new List<Stmt> { throwCall }),
+            new CatchClause(
+                new Token(TokenType.IDENTIFIER, "error", "error", 1, 1),
+                new Stmt.Block(
+                    new List<Stmt> { }
+                )
+            ),
+            null
+        );
+
+        interpreter.Interpret(new List<Stmt> { tryCall });
+
+        // The interpreter should not report an error if the error is caught
+        Assert.False(_errorReporter.HadError);
+    }
+
+    [Fact]
+    public void Execute_FinallyBlock_WhenNoErrorIsThrown()
+    {
+        var interpreter = new MDA.Interpreter();
+
+        var tryCall = new Stmt.Try(
+            new Stmt.Block(new List<Stmt> { }),
+            null,
+            new Stmt.Block(new List<Stmt>
+            {
+                new Stmt.Throw(
+                    new Token(TokenType.THROW, "throw", null, 1, 1),
+                    new Expr.Call(
+                        new Expr.Variable(new Token(TokenType.IDENTIFIER, "Error", null, 1, 1)),
+                        new Token(TokenType.LEFT_PAREN, "(", null, 1, 1),
+                        new List<Expr>
+                        {
+                            new Expr.Literal("Error message from finally block")
+                        }
+                    )
+                )
+            })
+        );
+
+        interpreter.Interpret(new List<Stmt> { tryCall });
+
+        // The error is reported from the finally block
+        Assert.Equal(_errorReporter.LastErrorMessage, "Error message from finally block");
+    }
+
+    [Fact]
+    public void Execute_FinallyBlock_WhenErrorIsThrown()
+    {
+        var interpreter = new MDA.Interpreter();
+
+        var throwCall = new Stmt.Throw(
+            new Token(TokenType.THROW, "throw", null, 1, 1),
+            new Expr.Call(
+                new Expr.Variable(new Token(TokenType.IDENTIFIER, "Error", null, 1, 1)),
+                new Token(TokenType.LEFT_PAREN, "(", null, 1, 1),
+                new List<Expr>
+                {
+                    new Expr.Literal("Error message from throw block")
+                }
+            )
+        );
+
+        var tryCall = new Stmt.Try(
+            new Stmt.Block(new List<Stmt> { throwCall }),
+            null,
+            new Stmt.Block(new List<Stmt>
+            {
+                new Stmt.Throw(
+                    new Token(TokenType.THROW, "throw", null, 1, 1),
+                    new Expr.Call(
+                        new Expr.Variable(new Token(TokenType.IDENTIFIER, "Error", null, 1, 1)),
+                        new Token(TokenType.LEFT_PAREN, "(", null, 1, 1),
+                        new List<Expr>
+                        {
+                            new Expr.Literal("Error message from finally block")
+                        }
+                    )
+                )
+            })
+        );
+
+        interpreter.Interpret(new List<Stmt> { tryCall });
+
+        // The error is reported from the finally block
+        Assert.Equal(_errorReporter.LastErrorMessage, "Error message from finally block");
+    }
+
+    [Fact]
+    public void Execute_Code_AfterErrorIsCaught()
+    {
+        var interpreter = new MDA.Interpreter();
+
+        // define a global variable
+        var varDecl = new Stmt.Var(
+            new Token(TokenType.IDENTIFIER, "a", "a", 1, 1),
+            new Expr.Literal(1.0)
+        );
+
+        varDecl.Accept(interpreter);
+
+        // define throw statement
+        var throwCall = new Stmt.Throw(
+            new Token(TokenType.THROW, "throw", null, 1, 1),
+            new Expr.Call(
+                new Expr.Variable(new Token(TokenType.IDENTIFIER, "Error", null, 1, 1)),
+                new Token(TokenType.LEFT_PAREN, "(", null, 1, 1),
+                new List<Expr>
+                {
+                    new Expr.Literal("Error message")
+                }
+            )
+        );
+
+        // define try statement
+        var tryCall = new Stmt.Try(
+            new Stmt.Block(new List<Stmt> { throwCall }),
+            new CatchClause(
+                new Token(TokenType.IDENTIFIER, "error", "error", 1, 1),
+                new Stmt.Block(
+                    new List<Stmt> { }
+                )
+            ),
+            null
+        );
+
+        // define a code block with try statement and an assign expression after
+        var codeBlock = new Stmt.Block(new List<Stmt>
+        {
+            tryCall,
+            new Stmt.Expression(
+                new Expr.Assign(
+                    new Token(TokenType.IDENTIFIER, "a", "a", 1, 1),
+                    new Expr.Literal(2.0)
+                )
+            )
+        });
+
+        interpreter.Interpret(new List<Stmt> { codeBlock });
+
+        var variable = new Expr.Variable(new Token(TokenType.IDENTIFIER, "a", "a", 1, 1));
+        var result = variable.Accept(interpreter);
+
+        // The assign statement should have been executed after the error was caught
+        Assert.Equal((double)result, 2.0);
+    }
+
+    [Fact]
+    public void Execute_UncaughtError_StopsExecution()
+    {
+        var interpreter = new MDA.Interpreter();
+
+        // Declare variable a = 1
+        var varDecl = new Stmt.Var(
+            new Token(TokenType.IDENTIFIER, "a", "a", 1, 1),
+            new Expr.Literal(1.0)
+        );
+        varDecl.Accept(interpreter);
+
+        // Throw error without try-catch
+        var throwStmt = new Stmt.Throw(
+            new Token(TokenType.THROW, "throw", null, 1, 1),
+            new Expr.Call(
+                new Expr.Variable(new Token(TokenType.IDENTIFIER, "Error", null, 1, 1)),
+                new Token(TokenType.LEFT_PAREN, "(", null, 1, 1),
+                new List<Expr> { new Expr.Literal("Uncaught error") }
+            )
+        );
+
+        // Assignment after throw (shouldn't execute)
+        var assignStmt = new Stmt.Expression(
+            new Expr.Assign(
+                new Token(TokenType.IDENTIFIER, "a", "a", 1, 1),
+                new Expr.Literal(2.0)
+            )
+        );
+
+        var block = new Stmt.Block(new List<Stmt> { throwStmt, assignStmt });
+        interpreter.Interpret(new List<Stmt> { block });
+
+        // Verify execution stopped and error reported
+        var variable = new Expr.Variable(new Token(TokenType.IDENTIFIER, "a", "a", 1, 1));
+        Assert.Equal(1.0, variable.Accept(interpreter));
+        Assert.Equal("Uncaught error", _errorReporter.LastErrorMessage);
+    }
+
+    [Fact]
+    public void Execute_NestedTryCatch_OuterCatchesError()
+    {
+        var interpreter = new MDA.Interpreter();
+
+        // Inner try with uncaught error
+        var innerThrow = new Stmt.Throw(
+            new Token(TokenType.THROW, "throw", null, 1, 1),
+            new Expr.Call(
+                new Expr.Variable(new Token(TokenType.IDENTIFIER, "Error", null, 1, 1)),
+                new Token(TokenType.LEFT_PAREN, "(", null, 1, 1),
+                new List<Expr> { new Expr.Literal("Inner error") }
+            )
+        );
+
+        var outerTry = new Stmt.Try(
+            new Stmt.Block(new List<Stmt>
+            {
+                new Stmt.Try(
+                    new Stmt.Block(new List<Stmt> { innerThrow }),
+                    null,
+                    null
+                )
+            }),
+            new CatchClause(
+                new Token(TokenType.IDENTIFIER, "e", "e", 1, 1),
+                new Stmt.Block(new List<Stmt>())
+            ),
+            null
+        );
+
+        interpreter.Interpret(new List<Stmt> { outerTry });
+        Assert.False(_errorReporter.HadError);
+    }
+
+    [Fact]
+    public void Execute_ErrorInCatchBlock_PropagatesUncaught()
+    {
+        var interpreter = new MDA.Interpreter();
+
+        var tryStmt = new Stmt.Try(
+            new Stmt.Block(new List<Stmt>
+            {
+                new Stmt.Throw(
+                    new Token(TokenType.THROW, "throw", null, 1, 1),
+                    new Expr.Call(
+                        new Expr.Variable(new Token(TokenType.IDENTIFIER, "Error", null, 1, 1)),
+                        new Token(TokenType.LEFT_PAREN, "(", null, 1, 1),
+                        new List<Expr> { new Expr.Literal("Original error") }
+                    )
+                )
+            }),
+            new CatchClause(
+                new Token(TokenType.IDENTIFIER, "e", "e", 1, 1),
+                new Stmt.Block(new List<Stmt>
+                {
+                    new Stmt.Throw(
+                        new Token(TokenType.THROW, "throw", null, 1, 1),
+                        new Expr.Call(
+                            new Expr.Variable(new Token(TokenType.IDENTIFIER, "Error", null, 1, 1)),
+                            new Token(TokenType.LEFT_PAREN, "(", null, 1, 1),
+                            new List<Expr> { new Expr.Literal("Catch error") }
+                        )
+                    )
+                })
+            ),
+            null
+        );
+
+        interpreter.Interpret(new List<Stmt> { tryStmt });
+        Assert.Equal("Catch error", _errorReporter.LastErrorMessage);
+        Assert.True(_errorReporter.HadRuntimeError);
+    }
+
+    [Fact]
+    public void Execute_FinallyBlock_ExecutesAfterNormalExit()
+    {
+        var interpreter = new MDA.Interpreter();
+
+        // Track finally execution
+        var varDecl = new Stmt.Var(
+            new Token(TokenType.IDENTIFIER, "executed", "executed", 1, 1),
+            new Expr.Literal(false)
+        );
+        varDecl.Accept(interpreter);
+
+        var tryStmt = new Stmt.Try(
+            new Stmt.Block(new List<Stmt>()),
+            null,
+            new Stmt.Block(new List<Stmt>
+            {
+                new Stmt.Expression(
+                    new Expr.Assign(
+                        new Token(TokenType.IDENTIFIER, "executed", "executed", 1, 1),
+                        new Expr.Literal(true)
+                    )
+                )
+            })
+        );
+
+        interpreter.Interpret(new List<Stmt> { tryStmt });
+        var variable = new Expr.Variable(new Token(TokenType.IDENTIFIER, "executed", "executed", 1, 1));
+        Assert.True((bool)variable.Accept(interpreter));
+        Assert.False(_errorReporter.HadRuntimeError);
+    }
+
+    [Fact]
+    public void Execute_CatchClause_AccessErrorMessage()
+    {
+        var interpreter = new MDA.Interpreter();
+
+        // Setup error message capture
+        var varDecl = new Stmt.Var(
+            new Token(TokenType.IDENTIFIER, "msg", "msg", 1, 1),
+            new Expr.Literal("")
+        );
+        varDecl.Accept(interpreter);
+
+        var tryStmt = new Stmt.Try(
+            new Stmt.Block(new List<Stmt>
+            {
+                new Stmt.Throw(
+                    new Token(TokenType.THROW, "throw", null, 1, 1),
+                    new Expr.Call(
+                        new Expr.Variable(new Token(TokenType.IDENTIFIER, "Error", null, 1, 1)),
+                        new Token(TokenType.LEFT_PAREN, "(", null, 1, 1),
+                        new List<Expr> { new Expr.Literal("Test message") }
+                    )
+                )
+            }),
+            new CatchClause(
+                new Token(TokenType.IDENTIFIER, "e", "e", 1, 1),
+                new Stmt.Block(new List<Stmt>
+                {
+                    new Stmt.Expression(
+                        new Expr.Assign(
+                            new Token(TokenType.IDENTIFIER, "msg", "msg", 1, 1),
+                            new Expr.Get(
+                                new Expr.Variable(new Token(TokenType.IDENTIFIER, "e", "e", 1, 1)),
+                                new Token(TokenType.IDENTIFIER, "message", "message", 1, 1)
+                            )
+                        )
+                    )
+                })
+            ),
+            null
+        );
+
+        interpreter.Interpret(new List<Stmt> { tryStmt });
+        var variable = new Expr.Variable(new Token(TokenType.IDENTIFIER, "msg", "msg", 1, 1));
+        Assert.Equal("Test message", variable.Accept(interpreter));
+        Assert.False(_errorReporter.HadError);
+    }
+
+    [Fact]
+    public void Execute_ThrowNonErrorObject_ReportsError()
+    {
+        var interpreter = new MDA.Interpreter();
+
+        interpreter.Interpret(new List<Stmt>
+        {
+            new Stmt.Throw(
+                new Token(TokenType.THROW, "throw", null, 1, 1),
+                new Expr.Literal(42) // Throw primitive value
+            )
+        });
+
+        Assert.True(_errorReporter.HadRuntimeError);
+        Assert.Equal("Can only throw Error instances.", _errorReporter.LastErrorMessage);
     }
 }
